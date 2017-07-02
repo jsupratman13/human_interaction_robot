@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package>
+  <name>hir_bringup</name>
+  <version>0.0.0</version>
+  <description>The hir_bringup package</description>
+
+  <maintainer email="supratmanjoshua@gmail.com">jsupratman13</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>icart_mini_driver</build_depend>
+  <build_depend>kondo_driver</build_depend>
+  <run_depend>icart_mini_driver</run_depend>
+  <run_depend>kondo_driver</run_depend>
+
+  <export>
+  </export>
+</package>
