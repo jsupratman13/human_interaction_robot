@@ -1,0 +1,28 @@
+manipulator:
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 50
+  
+  shoulder_slider_controller:
+    type: effort_controllers/JointTrajectoryController
+    joints: 
+      - shoulder_slider
+    gains:
+      shoulder_slider: {p: 100.0, i: 0.01, d: 100.0}
+
+  left_arm_controller:
+    type: effort_controllers/JointTrajectoryController
+    joints:
+      - shoulder_roll_joint
+      - shoulder_pitch_joint
+      - elbow_pitch_joint
+      - wrist_pitch_joint
+      - wrist_yaw_joint
+      - wrist_roll_joint
+    gains:
+      shoulder_roll_joint: {p: 100.0, i: 0.01, d: 100.0}
+      shoulder_pitch_joint: {p: 100.0, i: 0.01, d: 100.0}
+      elbow_pitch_joint: {p: 100.0, i: 0.01, d: 100.0}
+      wrist_pitch_joint: {p: 100.0, i: 0.01, d: 100.0}
+      wrist_yaw_joint: {p: 100.0, i: 0.01, d: 100.0}
+      wrist_roll_joint: {p: 100.0, i: 0.01, d: 100.0}

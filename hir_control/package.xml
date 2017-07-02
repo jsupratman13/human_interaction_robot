@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package>
+  <name>hir_control</name>
+  <version>0.0.0</version>
+  <description>The hir_control package</description>
+  
+  <maintainer email="supratmanjoshua@gmail.com">jsupratman13</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>icart_mini_control</build_depend>
+  <run_depend>icart_mini_control</run_depend>
+
+  <export>
+  </export>
+</package>
