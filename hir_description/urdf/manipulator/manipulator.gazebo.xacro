@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<robot>
+  
+  <gazebo reference="shoulder_link">
+    <material>Gazebo/Blue</material>
+	<mu1>1.0</mu1>
+	<mu2>1.0</mu2>
+	<kp>1000000.0</kp>
+	<kd>100.0</kd>
+	<gravity>false</gravity>
+	<minDepth>0.001</minDepth>
+	<maxVel>1.0</maxVel>
+  </gazebo>
+  
+  <gazebo reference="shoulder_roll_link">
+    <material>Gazebo/Red</material>
+	<mu1>1.0</mu1>
+	<mu2>1.0</mu2>
+	<kp>1000000.0</kp>
+	<kd>100.0</kd>
+	<gravity>false</gravity>
+	<minDepth>0.001</minDepth>
+	<maxVel>1.0</maxVel>
+  </gazebo>
+  
+  <gazebo reference="shoulder_pitch_link">
+    <material>Gazebo/Blue</material>
+	<mu1>1.0</mu1>
+	<mu2>1.0</mu2>
+	<kp>1000000.0</kp>
+	<kd>100.0</kd>
+	<gravity>false</gravity>
+	<minDepth>0.001</minDepth>
+	<maxVel>1.0</maxVel>
+  </gazebo>
+
+  <gazebo reference="elbow_pitch_link">
+    <material>Gazebo/Red</material>
+	<mu1>1.0</mu1>
+	<mu2>1.0</mu2>
+	<kp>1000000.0</kp>
+	<kd>100.0</kd>
+	<gravity>false</gravity>
+	<minDepth>0.001</minDepth>
+	<maxVel>1.0</maxVel>
+  </gazebo>
+
+  <gazebo reference="wrist_pitch_link">
+    <material>Gazebo/Blue</material>
+	<mu1>1.0</mu1>
+	<mu2>1.0</mu2>
+	<kp>1000000.0</kp>
+	<kd>100.0</kd>
+	<gravity>false</gravity>
+	<minDepth>0.001</minDepth>
+	<maxVel>1.0</maxVel>
+  </gazebo>
+
+  <gazebo reference="wrist_yaw_link">
+    <material>Gazebo/Red</material>
+	<mu1>1.0</mu1>
+	<mu2>1.0</mu2>
+	<kp>1000000.0</kp>
+	<kd>100.0</kd>
+	<gravity>false</gravity>
+	<minDepth>0.001</minDepth>
+	<maxVel>1.0</maxVel>
+  </gazebo>
+
+  <gazebo reference="wrist_roll_link">
+    <material>Gazebo/Blue</material>
+	<mu1>1.0</mu1>
+	<mu2>1.0</mu2>
+	<kp>1000000.0</kp>
+	<kd>100.0</kd>
+	<gravity>false</gravity>
+	<minDepth>0.001</minDepth>
+	<maxVel>1.0</maxVel>
+  </gazebo>
+  
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace></robotNamespace>
+    </plugin>
+  </gazebo>
+
+</robot>

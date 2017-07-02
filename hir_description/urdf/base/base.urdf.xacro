@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Import gazebo -->
+  <xacro:include filename="$(find hir_description)/urdf/base/base.gazebo.xacro"/>
+  <xacro:include filename="$(find hir_description)/urdf/wheel/wheel.gazebo.xacro"/>
+
+  <!-- Import wheels -->
+  <xacro:include filename="$(find hir_description)/urdf/wheel/wheel.urdf.xacro"/>
+  
+  <!-- wheel transmission -->
+  <xacro:include filename="$(find hir_description)/urdf/wheel/wheel.transmission.xacro"/>
+  
+  <!-- <xacro:include filename="$(find icart_mini_description)/urdf/sensors/imu.urdf.xacro"/>
+  <xacro:sensor_imu name="imu" parent="base_link" size="0.05 0.05 0.05">
+      <origin xyz="0.04 0.0 0.15" rpy="0 0 3.14"/>
+  </xacro:sensor_imu> -->
+
+
+  <!-- Base Link -->
+  <link name="base_link">
+	<collision>
+		<origin xyz="0 0 0.14" rpy="0 0 0" />
+		<geometry>
+			<box size="0.645 0.385 0.02" />
+		</geometry>
+	</collision>
+	
+	<collision>
+		<origin xyz="0 0 0.74" rpy="0 0 0" />
+		<geometry>
+			<box size="0.020 0.040 1.20" />
+		</geometry>
+	</collision>
+	
+	<collision>
+		<origin xyz="-0.185 -0.0875 0.05" rpy="0 1.5707 1.5707" />
+		<geometry>
+			<cylinder length="0.03" radius="0.0485" />
+		</geometry>
+	</collision>
+
+	<collision>
+		<origin xyz="-0.185 0.0875 0.05" rpy="0 1.5707 1.5707" />
+		<geometry>
+			<cylinder length="0.03" radius="0.0487" />
+		</geometry>
+	</collision>
+
+	<collision>
+		<origin xyz="0.18 -0.0875 0.05" rpy="0 1.5707 1.5707" />
+		<geometry>
+			<cylinder length="0.03" radius="0.0487" />
+		</geometry>
+	</collision>
+
+	<collision>
+		<origin xyz="0.18 0.0875 0.05" rpy="0 1.5707 1.5707" />
+		<geometry>
+			<cylinder length="0.03" radius="0.0487" />
+		</geometry>
+	</collision>
+	
+	<visual>
+      <origin xyz="0.02 0 0.42" rpy="1.5707 0 1.5707"/>
+      <geometry>
+		<mesh filename="package://hir_description/meshes/STL/base.stl" />
+      </geometry>
+      <material name="orange"/>
+    </visual>
+<!--
+    <collision>
+      <origin xyz="-0.05 0 1.01" rpy="1.5707 0 -1.5707"/>
+      <geometry>
+		<mesh filename="package://hir_description/meshes/STL/pole.stl"/>
+      </geometry>
+    </collision>
+    
+	<visual>
+      <origin xyz="-0.05 0 1.01" rpy="1.5707 0 -1.5707"/>
+      <geometry>
+		<mesh filename="package://hir_description/meshes/STL/pole.stl"/>
+      </geometry>
+      <material name="orange"/>
+    </visual>
+-->
+    <inertial>
+       <mass value="20" />
+       <origin xyz="0 0 0" rpy="0 0 0"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+
+  <!-- linking wheel to base -->
+  <joint type="fixed" name="visual_left_wheel_hinge">
+    <origin xyz="0 0.15 0.0725" rpy="0 0 0"/>
+    <child link="visual_left_wheel">visual_left_wheel</child>
+    <parent link="base_link">base_link</parent>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <joint type="revolute" name="left_wheel_hinge">
+    <origin xyz="0 0.15 0.0727" rpy="0 0 0"/>
+    <child link="left_wheel">left_wheel</child>
+    <parent link="base_link">base_link</parent>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" velocity="100.0"  lower="-5000" upper="5000" />
+  </joint>
+
+  <joint type="fixed" name="visual_right_wheel_hinge">
+    <origin xyz="0 -0.15 0.0725" rpy="0 0 0"/>
+    <child link="visual_right_wheel">visual_right_wheel</child>
+    <parent link="base_link">base_link</parent>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <joint type="revolute" name="right_wheel_hinge">
+    <origin xyz="0 -0.15 0.0727" rpy="0 0 0"/>
+    <child link="right_wheel">right_wheel</child>
+    <parent link="base_link">base_link</parent>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" velocity="100.0"  lower="-5000" upper="5000" />
+  </joint>
+
+</robot>

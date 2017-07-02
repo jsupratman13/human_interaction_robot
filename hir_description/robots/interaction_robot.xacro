@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<robot name="interaction_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+	<!--Constants for robot dimensions -->
+	<xacro:property name="PI" value="3.1415926535897931" />
+
+	<!-- Import Rviz color -->	
+	<xacro:include filename="$(find hir_description)/urdf/materials.xacro" />
+
+	<!-- Import chassis parts -->
+	<xacro:include filename="$(find hir_description)/urdf/base/base.urdf.xacro" />
+
+	<!-- Import manipulator parts -->
+	<xacro:include filename="$(find hir_description)/urdf/manipulator/manipulator.urdf.xacro"/>
+
+</robot>
