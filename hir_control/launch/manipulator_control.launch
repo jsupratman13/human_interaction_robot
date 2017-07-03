@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<launch>
+	
+	<!-- Load joint controller configurations from YAML file to parameter server -->
+	<rosparam file="$(find hir_control)/config/trajectory_control.yaml" command="load" />
+	
+	<!-- load controller -->
+	<node name="manipulator_controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/manipulator" args="/manipulator/left_arm_controller /manipulator/shoulder_slider_controller /manipulator/joint_state_controller" />
+
+<!--	
+	<rosparam file="$(find hir_control)/config/position_control.yaml" command="load" />
+	<node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/manipulator" args="shoulder_slider_controller shoulder_roll_controller shoulder_pitch_controller elbow_pitch_controller wrist_pitch_controller wrist_yaw_controller wrist_roll_controller" />
+-->
+	
+	<!-- convert joint states to topic -->
+	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+	
+	<!-- convert joint states to TF for rviz etc -->
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen">
+		<remap from="/joint_states" to="/manipulator/joint_states" />
+	</node>
+</launch>
