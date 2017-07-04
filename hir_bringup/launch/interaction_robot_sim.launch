@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<launch>
+
+	<!-- load gazebo -->	
+	<include file="$(find hir_bringup)/launch/gazebo.launch" >
+		<arg name="model" value="'$(find hir_description)/robots/interaction_robot.xacro'"/>
+		<arg name="paused" value="false"/>
+	</include>
+
+	<!-- load uRDF, SRDF and other yaml configuration files on the param server-->
+	<include file="$(find hir_moveit_config)/launch/planning_context.launch">
+		<arg name="load_robot_description" value="true"/>
+	</include>
+
+	<!-- controller -->
+	<include file="$(find hir_control)/launch/control.launch" />
+	<include file="$(find orne_bringup)/launch/includes/base.launch.xml" />
+
+	<!-- Moveit -->
+	<include file="$(find hir_moveit_config)/launch/move_group.launch">
+		<arg name="publish_monitored_planning_scene" value="true" />
+		<arg name="allow_trajectory_execution" value="true" />
+		<arg name="fake_execution" value="false" />
+		<arg name="info" value="true" />
+		<arg name="debug" value="false" />
+	</include>
+
+	<!-- Rviz and load the default config to see the state of the move_group node -->
+	<include file="$(find hir_moveit_config)/launch/moveit_rviz.launch">
+		<arg name="config" value="true" />
+		<arg name="debug" value="false" />
+	</include>
+
+</launch>
