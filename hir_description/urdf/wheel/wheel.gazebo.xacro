@@ -9,7 +9,10 @@
     <kd>100.0</kd>
     <minDepth>0.001</minDepth>
     <maxVel>1.0</maxVel>
+    <material>Gazebo/Orange</material>
+  </gazebo>
 
+  <gazebo reference="visual_right_wheel">
     <material>Gazebo/Orange</material>
   </gazebo>
   
@@ -21,9 +24,11 @@
     <kd>100.0</kd>
     <minDepth>0.001</minDepth>
     <maxVel>1.0</maxVel>
-
     <material>Gazebo/Orange</material>
   </gazebo>
 
+  <gazebo reference="visual_left_wheel">
+    <material>Gazebo/Orange</material>
+  </gazebo>
 </robot>
 
