@@ -2,8 +2,9 @@
 Undergraduate thesis
 
 ## System
-* OS: Ubuntu 14.04 LTS
-* ROS: indigio
+* Ubuntu 14.04 LTS
+* ROS indigio
+* Gazebo 7
 
 ## Dependency Repositories
 * https://github.com/open-rdc/icart_mini
