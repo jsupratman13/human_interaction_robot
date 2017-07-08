@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(hir_strategy)
+project(hir_learning)
 
 find_package(catkin REQUIRED COMPONENTS
   moveit_core

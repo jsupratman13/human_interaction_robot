@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>hir_strategy</name>
+  <name>hir_learning</name>
   <version>0.0.0</version>
-  <description>The hir_strategy package</description>
+  <description>The hir_learning package</description>
   
   <maintainer email="supratmanjoshua@gmail.com">jsupratman13</maintainer>
 
