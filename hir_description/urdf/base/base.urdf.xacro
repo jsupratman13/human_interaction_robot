@@ -36,28 +36,28 @@
 	<collision>
 		<origin xyz="-0.185 -0.0875 0.05" rpy="0 1.5707 1.5707" />
 		<geometry>
-			<cylinder length="0.03" radius="0.0485" />
+			<cylinder length="0.03" radius="0.04973" />
 		</geometry>
 	</collision>
 
 	<collision>
 		<origin xyz="-0.185 0.0875 0.05" rpy="0 1.5707 1.5707" />
 		<geometry>
-			<cylinder length="0.03" radius="0.0487" />
+			<cylinder length="0.03" radius="0.04973" />
 		</geometry>
 	</collision>
 
 	<collision>
 		<origin xyz="0.18 -0.0875 0.05" rpy="0 1.5707 1.5707" />
 		<geometry>
-			<cylinder length="0.03" radius="0.0487" />
+			<cylinder length="0.03" radius="0.04973" />
 		</geometry>
 	</collision>
 
 	<collision>
 		<origin xyz="0.18 0.0875 0.05" rpy="0 1.5707 1.5707" />
 		<geometry>
-			<cylinder length="0.03" radius="0.0487" />
+			<cylinder length="0.03" radius="0.04973" />
 		</geometry>
 	</collision>
 	
