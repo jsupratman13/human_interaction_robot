@@ -7,6 +7,7 @@ sudo apt-get update
 
 ## Compile
 ```
-pdflatex midterm_report.tex
+platex midterm_report.tex
+dvipdfmx midterm_report.dvi
 ```
 
