@@ -1,0 +1,59 @@
+\documentclass[10pt, a4j]{jarticle}
+\usepackage[english]{babel}
+\usepackage{fed2012doc}
+\usepackage{here}
+\usepackage{amsmath}
+\usepackage{placeins}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{fancyhdr}
+\usepackage{indentfirst}
+\usepackage{cite}
+\usepackage[subrefformat=parens]{subcaption}
+
+\title{\gt 人の力を用いたロボットの誘導に関する研究\\%
+{\normalsize \sf Study on robot guidance using human force}}
+\author{%
+Joshua SUPRATMAN, Chiba Institute of Technology\\
+ $<$supratmanjoshua@gmail.com$>$ \\
+}
+\abstract{\fontsize{9}{10}\selectfont%
+Abstract: In this paper, we present a method of attempting to induce a wheeled robotic manipulator using human force. We first discuss the orthodox method which we measure or estimate force applied on the manipulator to select a behavior. Next, we discuss the end-to-end method which estimates intension using reinforcement learning by directly taking sensor data as input and returning behavior as an output. We conduct our experiment on a simulator first before we conduct our experiment on the robot.
+}
+\keywords{\fontsize{9}{10}\selectfont%
+Guidance, Reinforcement Learning, Intention Estimation, End-to-end Method
+}
+
+\twocolumn
+\begin{document}
+\maketitle
+
+\input{background}
+\input{related_works}
+\input{method_of_measuring_force}
+\input{behavior_selection_through}
+\input{experiment_condition}
+\input{proposed_procedure}
+\input{conclusion}
+
+\begin{thebibliography}{9}
+\bibitem{haya}
+Y. Hayashibara et al., ``Assist System for Carrying a Long Object with a Human - Analysis of a human Cooperative Behavior in the Vertical Direction -,'' Proc. 1999 IEEE/RSJ Int. Conf. on Intelligent Robots and Systems (IROS'99), 1999.
+
+\bibitem{kosuge}
+K. Kosuge, T. Hayashi, Y. Hirata, and R. Tobiyama, ``Dance partner robot -Ms DanceR-'' in IEEE/RSJ International Conference on Robots and Intelligent Systems, October 2003, pp. 345-3464.
+
+\bibitem{yang}
+Yang, Pin-Chu, et al. "Repeatable Folding Task by Humanoid Robot Worker using Deep Learning." \textit{IEEE Robotics and Automation Letters 2.2} (2017): 397-403.
+
+\bibitem{sutton}
+Sutton, R. S. and Barto, A. G. \textit{Introduction to reinforcement learning.} MIT Press, 1998.
+
+\bibitem{mnih}
+Mnih, Volodymyr, et al. "Playing atari with deep reinforcement learning." \textit{arXiv preprint arXiv:1312.5602} (2013). 
+
+\bibitem{van}
+Van Hasselt, Hado, Arthur Guez, and David Silver. "Deep Reinforcement Learning with Double Q-Learning." \textit{AAAI}. 2016.
+
+\end{thebibliography}
+
+\end{document}
