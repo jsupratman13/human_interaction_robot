@@ -15,3 +15,21 @@ Undergraduate thesis
 ```
 roslaunch hir_bringup interaction_robot_sim.launch
 ```
+
+### train robot
+```
+rosrun hir_learning ddqn.py
+```
+
+### test robot
+```
+rosed hir_learning/scripts
+python test.py <modelname>.json <weightname>.hdf5
+```
+
+### evaluate model and weights
+```
+roscd hir_learning/scripts
+python diagnostic.py <modelname>.json *.hdf5
+```
+
