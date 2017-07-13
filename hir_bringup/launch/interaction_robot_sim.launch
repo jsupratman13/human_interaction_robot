@@ -2,9 +2,11 @@
 <launch>
 
 	<!-- load gazebo -->	
+	<arg name = "render" default="true" />
 	<include file="$(find hir_gazebo)/launch/gazebo.launch" >
 		<arg name="model" value="'$(find hir_description)/robots/interaction_robot.xacro'"/>
 		<arg name="paused" value="false"/>
+		<arg name="gui" value="$(arg render)" />
 	</include>
 
 	<!-- load URDF, SRDF and other yaml configuration files on the param server-->
