@@ -3,6 +3,7 @@
 ## installing ros indigo
 
 ## installing gazebo 7
+Before you install gazebo 7 make sure to build your workspace with gazebo 2. This way you can avoid conflict error.
 ```
 sudo apt-get remove gazebo2
 ./install_gazebo7
