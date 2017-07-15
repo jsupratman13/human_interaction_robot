@@ -45,7 +45,7 @@ def move_group():
     rospy.loginfo("--------- waiting while rviz display plan2")
     rospy.sleep(5)
 
-
+    '''
     rospy.loginfo("--------- generate plan while robot is moving")
     group.clear_pose_targets()
     group.set_named_target('pulled_pose')
@@ -58,6 +58,7 @@ def move_group():
 
     vel.linear.x = 0
     pub.publish(vel)
+    '''
     moveit_commander.roscpp_shutdown()
     rospy.loginfo("--------- FINISHED")
 

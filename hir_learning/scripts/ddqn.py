@@ -80,7 +80,7 @@ class Agent(object):
 
             #save checkpoint
             if not episode%1000: max_r = max_r - 100
-            if treward > max_r or not episode%500:
+            if treward > max_r or not episode%10:
                 max_r = treward 
                 self.model.save_weights('check'+str(episode)+'.hdf5')
 
@@ -126,7 +126,7 @@ class Agent(object):
         plt.ylabel('loss')
         plt.yscale('log')
         plt.savefig('loss.png')
-        plt.show()
+        #plt.show()
 
 if __name__ == '__main__':
     try:
