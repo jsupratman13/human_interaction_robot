@@ -16,7 +16,7 @@
 
 	<!-- controller -->
 	<include file="$(find hir_control)/launch/control.launch" />
-	<include file="$(find orne_bringup)/launch/includes/base.launch.xml" />
+	<include file="$(find hir_bringup)/launch/includes/base.launch.xml" />
 
 	<!-- Moveit -->
 	<include file="$(find hir_moveit_config)/launch/move_group.launch">
