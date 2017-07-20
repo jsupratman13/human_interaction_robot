@@ -14,7 +14,7 @@ class Agent(object):
         self.alpha = 0.001
         self.env = env
         self.ntrials = 10
-        self.nstates = env.observation_space().get_size()
+        self.nstates = env.observation_space.get_size()
         self.model = self.load_model(model)
         self.weights_list = weights_list
         self.configure = {}
@@ -27,7 +27,7 @@ class Agent(object):
 
     def epsilon_greedy(self,state):
         if np.random.rand() < self.epsilon:
-            return self.env.action_space().sample()
+            return self.env.action_space.sample()
         else:
             Q = self.model.predict(state)
             return np.argmax(Q[0])
@@ -64,16 +64,19 @@ class Agent(object):
         f.close()
      
 if __name__ == '__main__':
-    if not len(sys.argv) > 2:
-        assert False, 'missing model and/or weight'
-    rospy.init_node('ddqn_diagnose')
-    rospy.loginfo('start diagnostic')
-    env = Environment()
-    weights = []
-    for i in range(2,len(sys.argv)):
-        weights.append(str(sys.argv[i]))
-    agent = Agent(env, (str(sys.argv[1])),weights)
-    agent.run_diagnostic()
-    env.reset()
-    rospy.loginfo('COMPLETE DIAGNOSE')
-    rospy.spin()
+    try:
+        if not len(sys.argv) > 2:
+            assert False, 'missing model and/or weight'
+        rospy.init_node('ddqn_diagnose')
+        rospy.loginfo('start diagnostic')
+        env = Environment()
+        weights = []
+        for i in range(2,len(sys.argv)):
+            weights.append(str(sys.argv[i]))
+        agent = Agent(env, (str(sys.argv[1])),weights)
+        agent.run_diagnostic()
+        env.reset()
+        rospy.loginfo('COMPLETE DIAGNOSE')
+        rospy.spin()
+    except rospy.ROSInterruptException:
+        pass

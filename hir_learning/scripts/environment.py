@@ -26,6 +26,16 @@ class Environment(object):
         self.joint_names = []
         self.initial_step_time = 0
 
+        self.__observation_space = Environment.ObservationSpace()
+        self.__action_space = Environment.ActionSpace()
+
+    @property
+    def action_space(self):
+        return self.__action_space
+    @property
+    def observation_space(self):
+        return self.__observation_space
+
     def __get_state(self, msg):
         self.joint_names =  msg.joint_names
         self.error = msg.error.positions
@@ -108,14 +118,14 @@ class Environment(object):
 
         return self.error, reward, is_terminal
 
-    class observation_space(object):
+    class ObservationSpace(object):
         def __init__(self):
             pass
 
         def get_size(self):
             return 6
 
-    class action_space(object):
+    class ActionSpace(object):
         def __init__(self):
             self.action_list = [Environment.FORWARD,
                                 Environment.STOP,

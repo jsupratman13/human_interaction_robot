@@ -4,7 +4,7 @@
 #filename: ddqn.py                             
 #brief: double deep q-learning on neural network                  
 #author: Joshua Supratman                    
-#last modified: 2017.07.13. 
+#last modified: 2017.07.20. 
 #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv#
 import numpy as np
 import rospy
@@ -28,8 +28,8 @@ class Agent(object):
         self.updateQ = 100
         self.weights_name = 'checkfinal.hdf5'
         self.env = env
-        self.nstates = env.observation_space().get_size()
-        self.nactions = env.action_space().get_size()
+        self.nstates = env.observation_space.get_size()
+        self.nactions = env.action_space.get_size()
         self.model = self.create_neural_network()
         self.memory = collections.deque(maxlen=2000)
         self.target_model = self.model
@@ -55,7 +55,7 @@ class Agent(object):
 
     def epsilon_greedy(self,state):
         if np.random.rand() < self.epsilon:
-            return self.env.action_space().sample()
+            return self.env.action_space.sample()
         else:
             Q = self.model.predict(state)
             return np.argmax(Q[0])
@@ -94,7 +94,8 @@ class Agent(object):
 
             #Target Network
             if not episode % self.updateQ:
-                self.target_model = self.model
+                #self.target_model = self.model
+                self.target_model.set_weights(self.model.get_weights())
 
             #shift from explore to exploit
             if self.epsilon > self.min_epsilon:
@@ -128,12 +129,15 @@ class Agent(object):
         plt.show()
 
 if __name__ == '__main__':
-    rospy.init_node('ddqn_learning')
-    rospy.loginfo('start training')
-    env = Environment()
-    agent = Agent(env)
-    agent.train()
-    agent.plot()
-    rospy.loginfo('COMPLETE TRAINING')
-    env.reset()
-    rospy.spin() 
+    try:
+        rospy.init_node('ddqn_learning')
+        rospy.loginfo('start training')
+        env = Environment()
+        agent = Agent(env)
+        agent.train()
+        agent.plot()
+        rospy.loginfo('COMPLETE TRAINING')
+        env.reset()
+        rospy.spin() 
+    except rospy.ROSInterruptException:
+        pass
