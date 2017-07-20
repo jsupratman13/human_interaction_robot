@@ -14,7 +14,7 @@ class Agent(object):
         self.alpha = 0.001
         self.env = env
         self.ntrials = 5
-        self.nstates = env.observation_space().get_size()
+        self.nstates = env.observation_space.get_size()
         self.model = self.load_model(model)
         self.weight = weight
         self.configure = {}
@@ -27,7 +27,7 @@ class Agent(object):
 
     def epsilon_greedy(self,state):
         if np.random.rand() < self.epsilon:
-            return self.env.action_space().sample()
+            return self.env.action_space.sample()
         else:
             Q = self.model.predict(state)
             return np.argmax(Q[0])
