@@ -23,7 +23,7 @@ rosrun hir_learning ddqn.py
 
 ### test robot
 ```
-rosed hir_learning/scripts
+roscd hir_learning/scripts
 python test.py <modelname>.json <weightname>.hdf5
 ```
 
