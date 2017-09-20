@@ -23,7 +23,10 @@ class Environment(object):
         self.clear_force = rospy.ServiceProxy('/gazebo/clear_body_wrenches',BodyRequest)
 
         self.error = []
+        self.prev_error = [0 for i in range(6)]
+        self.vel_error = []
         self.joint_names = []
+        self.current_time = 0
         self.initial_step_time = 0
 
         self.__observation_space = Environment.ObservationSpace()
@@ -38,7 +41,16 @@ class Environment(object):
 
     def __get_state(self, msg):
         self.joint_names =  msg.joint_names
-        self.error = msg.error.positions
+        self.error = list(msg.error.positions)
+        delta_time = rospy.Time.now().secs - self.current_time
+        if not delta_time < 0.001:
+            for i in range(len(self.error)):
+                diff = self.error[i] - self.prev_error[i]
+                self.vel_error.append(diff/delta_time)
+        else:
+            self.vel_error = [0 for i in range(6)]
+        self.prev_error = self.error
+        self.current_time = rospy.Time.now().secs
 
     def __move(self, action):
         vel = Twist()
@@ -94,7 +106,7 @@ class Environment(object):
             rospy.loginfo('reset simulation failed %s', e)
 
     def __get_reward(self):
-        return -1 * sum(self.error)
+        return -1 * sum(self.error+self.vel_error)
 
     def reset(self):
         self.__move(Environment.STOP)
@@ -103,7 +115,7 @@ class Environment(object):
         time.sleep(5)
         self.__apply_force()
         self.initial_step_time = rospy.Time.now().secs
-        return self.error
+        return self.error+self.vel_error
 
     def step(self, action):
         is_terminal = False
@@ -116,14 +128,14 @@ class Environment(object):
         if reward > -0.08:
             is_terminal = True
 
-        return self.error, reward, is_terminal
+        return self.error+self.vel_error, reward, is_terminal
 
     class ObservationSpace(object):
         def __init__(self):
             pass
 
         def get_size(self):
-            return 6
+            return 12
 
     class ActionSpace(object):
         def __init__(self):
