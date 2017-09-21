@@ -4,7 +4,7 @@
 #filename: ddqn.py                             
 #brief: double deep q-learning on neural network                  
 #author: Joshua Supratman                    
-#last modified: 2017.07.20. 
+#last modified: 2017.09.21. 
 #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv#
 import numpy as np
 import rospy
@@ -140,4 +140,5 @@ if __name__ == '__main__':
         env.reset()
         rospy.spin() 
     except rospy.ROSInterruptException:
+        print 'kill node' 
         pass
