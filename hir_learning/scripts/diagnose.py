@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import numpy as np
-import gym
 import json
 import collections,random,sys
 from keras.models import model_from_json
