@@ -150,22 +150,31 @@ class Environment(object):
             return  -1000
         return -1 * sum(self.state)
 
-    def reset(self):
+    def reset(self, test=0):
         self.__move(Environment.STOP)
         self.__clear_force()
         self.__reset_sim() 
         time.sleep(5)
-        
-        prob = random.random()*100
-        if prob < 33:
+       
+        if test <= 2:
             print 'pull'
             self.__apply_force_pull()
-        elif 33 <= prob < 66:
+        elif test <= 4:
             print 'push'
             self.__apply_force_push()
-        else:
+        elif test <= 6:
             print 'none'
-            self.contact = Environment.NONE
+        else: 
+            prob = random.random()*100
+            if prob < 33:
+                print 'pull'
+                self.__apply_force_pull()
+            elif 33 <= prob < 66:
+                print 'push'
+                self.__apply_force_push()
+            else:
+                print 'none'
+                self.contact = Environment.NONE
 
         self.initial_step_time = rospy.Time.now().secs
         return self.state

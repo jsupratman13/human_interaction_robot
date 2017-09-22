@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import numpy as np
-import gym
 import json
 import collections,random,sys
 from keras.models import model_from_json
@@ -13,7 +12,7 @@ class Agent(object):
     def __init__(self, env, model, weight):
         self.alpha = 0.001
         self.env = env
-        self.ntrials = 5
+        self.ntrials = 6
         self.nstates = env.observation_space.get_size()
         self.model = self.load_model(model)
         self.weight = weight
@@ -37,7 +36,7 @@ class Agent(object):
         self.model.compile(loss='mse', optimizer=Adam(lr=self.alpha))
         self.epsilon = 0.1
         for trial in range(self.ntrials):
-            s = self.env.reset()
+            s = self.env.reset(test=trial+1)
             s = np.reshape(s,[1,self.nstates])
             treward = 0
             while True:
