@@ -16,23 +16,26 @@ from keras.layers import Dense
 from keras.optimizers import Adam
 from environment import Environment
 import analyze
+import ConfigParser
 
 class Agent(object):
     def __init__(self,env):
-        self.gamma = 0.95
-        self.alpha = 0.01
-        self.nepisodes = 4
-        self.epsilon = 0.2
-        self.min_epsilon = 0.01
-        self.epsilon_decay = 0.995
-        self.batch_size = 64
-        self.updateQ = 100
+        config = ConfigParser.RawConfigParser()
+        config.read('parameters.cfg')
+        self.gamma = config.getfloat('training','gamma')
+        self.alpha = config.getfloat('training', 'alpha')
+        self.nepisodes = config.getint('training', 'episodes')
+        self.epsilon = config.getfloat('epsilon_greedy', 'epsilon')
+        self.min_epsilon = config.getfloat('epsilon_greedy', 'min_epsilon')
+        self.epsilon_decay = config.getfloat('epsilon_greedy', 'epsilon_decay')
+        self.batch_size = config.getint('network', 'batch_size')
+        self.updateQ = config.getint('network', 'update_network')
         self.weights_name = 'episodefinal.hdf5'
         self.env = env
         self.nstates = env.observation_space.get_size()
         self.nactions = env.action_space.get_size()
         self.model = self.create_neural_network()
-        self.memory = collections.deque(maxlen=2000)
+        self.memory = collections.deque(maxlen=config.getint('network', 'memory_size'))
         self.target_model = self.model
         self.loss_list = []
         self.reward_list = []
