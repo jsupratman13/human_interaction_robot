@@ -156,13 +156,13 @@ class Environment(object):
         self.__reset_sim() 
         time.sleep(5)
        
-        if test <= 2:
+        if 0 < test <= 3:
             print 'pull'
             self.__apply_force_pull()
-        elif test <= 4:
+        elif 3 < test <= 5:
             print 'push'
             self.__apply_force_push()
-        elif test <= 6:
+        elif 5 < test <= 7:
             print 'none'
         else: 
             prob = random.random()*100
