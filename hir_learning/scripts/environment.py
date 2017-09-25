@@ -187,8 +187,8 @@ class Environment(object):
         if math.fabs(rospy.Time.now().secs-self.initial_step_time) > 10:
             is_terminal = True
 
-        if reward > -0.08:
-            is_terminal = True
+        #if reward > -0.08:
+        #    is_terminal = True
 
         return self.state, reward, is_terminal
 
