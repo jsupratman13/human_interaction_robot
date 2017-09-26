@@ -33,7 +33,7 @@ class Environment(object):
         self.prev_error = [0 for i in range(6)]
         self.vel_error = [0 for i in range(6)]
         self.joint_names = []
-        self.current_time = 0
+        self.current_time = rospy.Time.now().secs
         self.initial_step_time = 0
 
         self.contact = Environment.NONE

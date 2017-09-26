@@ -133,6 +133,7 @@ if __name__ == '__main__':
     try:
         rospy.init_node('ddqn_learning')
         rospy.loginfo('start training')
+        start_time = rospy.Time.now().secs
         env = Environment()
         agent = Agent(env)
         diagnose = analyze.Agent(env, 'hir_model.json', agent.nepisodes)
@@ -144,6 +145,9 @@ if __name__ == '__main__':
         diagnose.run_diagnostic()
         env.reset()
         rospy.loginfo('COMPLETE DIAGNOSTIC')
+        m,s = divmod(rospy.Time.now().secs-start_time, 60)
+        h,m = divmod(m, 60)
+        print 'time took %d:%02d:%02d' %(h,m,s)
         rospy.spin() 
     except rospy.ROSInterruptException:
         print 'kill node' 
