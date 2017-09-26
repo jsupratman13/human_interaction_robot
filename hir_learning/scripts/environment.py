@@ -142,13 +142,14 @@ class Environment(object):
             rospy.loginfo('reset simulation failed %s', e)
 
     def __get_reward(self, action):
-        if self.contact == Environment.NONE and action != Environment.STOP:
-            return -1000
-        elif self.contact == Environment.PUSH and action != Environment.REVERSE:
-            return -1000
-        elif self.contact == Environment.PULL and action != Environment.FORWARD:
-            return  -1000
-        return -1 * sum(self.state)
+        if self.contact == Environment.NONE and action == Environment.STOP:
+            return 100
+        elif self.contact == Environment.PUSH and action == Environment.REVERSE:
+            return 100
+        elif self.contact == Environment.PULL and action == Environment.FORWARD:
+            return  100
+	return 0
+        #return -1 * sum(self.state)
 
     def reset(self, test=0):
         self.__move(Environment.STOP)
@@ -159,10 +160,10 @@ class Environment(object):
         if 0 < test <= 3:
             print 'pull'
             self.__apply_force_pull()
-        elif 3 < test <= 5:
+        elif 3 < test <= 6:
             print 'push'
             self.__apply_force_push()
-        elif 5 < test <= 7:
+        elif 6 < test <= 9:
             print 'none'
         else: 
             prob = random.random()*100

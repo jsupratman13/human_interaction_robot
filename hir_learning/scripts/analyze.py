@@ -60,9 +60,9 @@ class Agent(object):
             reward = self.test_weight(weight)
             avg_reward = sum(reward)/len(reward)
             self.configure[weight] = avg_reward
-        f = open('result.txt', 'w')
+        f = open('result.csv', 'w')
         for key, value in sorted(self.configure.iteritems(), key=lambda(k,v): (v,k)):
-            f.write(str(key)+': '+str(value)+'\n')
+            f.write(str(key)+','+str(value)+'\n')
         f.close()
      
 if __name__ == '__main__':

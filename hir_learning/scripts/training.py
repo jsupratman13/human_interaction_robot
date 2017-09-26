@@ -136,7 +136,7 @@ if __name__ == '__main__':
         env = Environment()
         agent = Agent(env)
         diagnose = analyze.Agent(env, 'hir_model.json', agent.nepisodes)
-        #agent.train()
+        agent.train()
         #agent.plot()
         rospy.loginfo('COMPLETE TRAINING')
         env.reset()
