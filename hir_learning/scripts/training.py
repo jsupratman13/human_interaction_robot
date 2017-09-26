@@ -4,7 +4,7 @@
 #filename: ddqn.py                             
 #brief: double deep q-learning on neural network                  
 #author: Joshua Supratman                    
-#last modified: 2017.09.25. 
+#last modified: 2017.09.26. 
 #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv#
 import numpy as np
 import rospy
@@ -80,7 +80,7 @@ class Agent(object):
                 treward.append(r)
                 if done:
                     break
-            treward = sum(treward)
+            treward = sum(treward)/len(treward)
 
             #save checkpoint
             self.model.save_weights('episode'+str(episode)+'.hdf5')

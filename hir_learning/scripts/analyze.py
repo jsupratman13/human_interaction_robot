@@ -39,14 +39,14 @@ class Agent(object):
         for trial in range(self.ntrials):
             s = self.env.reset(test=trial)
             s = np.reshape(s,[1,self.nstates])
-            treward = 0
+            treward = []
             while True:
                 a = self.epsilon_greedy(s)
                 s2, r, done = self.env.step(a)
                 s = np.reshape(s2, [1,self.nstates])
-                treward += r
+                treward.append(r)
                 if done:
-                    reward.append(treward)
+                    reward.append(sum(treward)/len(treward))
                     break
         return reward
 
