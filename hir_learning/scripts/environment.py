@@ -24,16 +24,14 @@ class Environment(object):
         initialize.move_group()
         self.sub = rospy.Subscriber('/manipulator/left_arm_controller/state', JointTrajectoryControllerState, self.__get_state)
         self.pub = rospy.Publisher('/icart_mini/cmd_vel', Twist, queue_size=10)
-        self.apply_force = rospy.ServiceProxy('/gazebo/apply_body_wrench', ApplyBodyWrench)
-        self.sim_reset = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
-        self.clear_force = rospy.ServiceProxy('/gazebo/clear_body_wrenches',BodyRequest)
+        self.__apply_force = rospy.ServiceProxy('/gazebo/apply_body_wrench', ApplyBodyWrench)
+        self.__sim_reset = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
+        self.__clear_force = rospy.ServiceProxy('/gazebo/clear_body_wrenches',BodyRequest)
 
         self.state = []
-        self.error = []
-        self.prev_error = [0 for i in range(6)]
-        self.vel_error = [0 for i in range(6)]
+        self.vel_error = []
+        self.pos_error = []
         self.joint_names = []
-        self.current_time = rospy.Time.now().secs
         self.initial_step_time = 0
 
         self.contact = Environment.NONE
@@ -49,21 +47,13 @@ class Environment(object):
         return self.__observation_space
 
     def __get_state(self, msg):
-        self.vel_error = []
         self.joint_names =  msg.joint_names
-        self.error = list(msg.error.positions)
-        delta_time = rospy.Time.now().secs - self.current_time
-        if not delta_time < 0.001:
-            for i in range(len(self.error)):
-                diff = self.error[i] - self.prev_error[i]
-                self.vel_error.append(diff/delta_time)
-        else:
-            self.vel_error = [0 for i in range(6)]
-        self.prev_error = self.error
-        self.current_time = rospy.Time.now().secs
-        self.state = self.error + self.vel_error 
+        self.pos_error = list(msg.error.positions)
+        self.vel_error = list(msg.error.velocities)
+        #self.state = [self.pos_error[2], self.vel_error[2]]
+        self.state = [self.pos_error[2]]
 
-    def __move(self, action):
+    def move(self, action):
         vel = Twist()
         if action == Environment.FORWARD:
             vel.linear.x = 0.5
@@ -80,7 +70,7 @@ class Environment(object):
         vel.angular.z = 0
         self.pub.publish(vel)
 
-    def __apply_force_pull(self):
+    def apply_force_pull(self):
         self.contact = Environment.PULL
         try:
             body_name = 'robot1::wrist_roll_link'
@@ -99,12 +89,12 @@ class Environment(object):
             start_time = rospy.Time.now()
             duration = rospy.Duration(10)
 
-            self.apply_force(body_name, reference_frame, point, wrench, start_time, duration)
+            self.__apply_force(body_name, reference_frame, point, wrench, start_time, duration)
 
         except rospy.ServiceException as e:
             rospy.loginfo('apply force failed %s', e)
 
-    def __apply_force_push(self):
+    def apply_force_push(self):
         self.contact = Environment.PUSH
         try:
             body_name = 'robot1::wrist_roll_link'
@@ -123,25 +113,25 @@ class Environment(object):
             start_time = rospy.Time.now()
             duration = rospy.Duration(10)
 
-            self.apply_force(body_name, reference_frame, point, wrench, start_time, duration)
+            self.__apply_force(body_name, reference_frame, point, wrench, start_time, duration)
 
         except rospy.ServiceException as e:
             rospy.loginfo('apply force failed %s', e)
 
-    def __clear_force(self):
+    def clear_force(self):
         try:
             body_name = 'robot1::wrist_roll_link'
-            self.clear_force(body_name)
+            self.__clear_force(body_name)
         except rospy.ServiceException as e:
             rospy.loginfo('clear force failed %s',e) 
 
-    def __reset_sim(self):
+    def reset_sim(self):
         try:
-            self.sim_reset()
+            self.__sim_reset()
         except rospy.ServiceException as e:
             rospy.loginfo('reset simulation failed %s', e)
 
-    def __get_reward(self, action):
+    def get_reward(self, action):
         if self.contact == Environment.NONE and action == Environment.STOP:
             return 100
         elif self.contact == Environment.PUSH and action == Environment.REVERSE:
@@ -152,27 +142,27 @@ class Environment(object):
         #return -1 * sum(self.state)
 
     def reset(self, test=0):
-        self.__move(Environment.STOP)
-        self.__clear_force()
-        self.__reset_sim() 
+        self.move(Environment.STOP)
+        self.clear_force()
+        self.reset_sim() 
         time.sleep(5)
        
         if 0 < test <= 3:
             print 'pull'
-            self.__apply_force_pull()
+            self.apply_force_pull()
         elif 3 < test <= 6:
             print 'push'
-            self.__apply_force_push()
+            self.apply_force_push()
         elif 6 < test <= 9:
             print 'none'
         else: 
             prob = random.random()*100
             if prob < 33:
                 print 'pull'
-                self.__apply_force_pull()
+                self.apply_force_pull()
             elif 33 <= prob < 66:
                 print 'push'
-                self.__apply_force_push()
+                self.apply_force_push()
             else:
                 print 'none'
                 self.contact = Environment.NONE
@@ -182,8 +172,8 @@ class Environment(object):
 
     def step(self, action):
         is_terminal = False
-        self.__move(action)
-        reward = self.__get_reward(action)
+        self.move(action)
+        reward = self.get_reward(action)
         
         if math.fabs(rospy.Time.now().secs-self.initial_step_time) > 10:
             is_terminal = True
@@ -217,9 +207,12 @@ if __name__ == '__main__':
     rospy.init_node('enivornment')
     rospy.loginfo('test')
     env = Environment()
+    env.reset()
+    action = Environment.FORWARD
     try:
-        print 'pushing'
-        env.apply_force_push()
+        env.apply_force_pull()
+        #env.move(action)
+        #print env.get_reward(action)
         rospy.spin()
     except rospy.ROSInterruptException:
         pass

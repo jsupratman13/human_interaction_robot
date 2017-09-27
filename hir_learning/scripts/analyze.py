@@ -31,6 +31,17 @@ class Agent(object):
             Q = self.model.predict(state)
             return np.argmax(Q[0])
 
+    def getQ(self,weight_index):
+        f = open('episode'+str(weight_index)+'.csv', 'w')
+        Q = []
+        state = np.linspace(-2,2,num=100)
+        for i in state:
+            s = [i]
+            s = np.reshape(s, [1,1])
+            Q = self.model.predict(s)
+            f.write(str(i)+','+str(Q[0])+','+str(Q[1])+','+str(Q[2])+'\n')
+        f.close()
+
     def test_weight(self,weightname):
         self.model.load_weights(weightname)
         self.model.compile(loss='mse', optimizer=Adam(lr=self.alpha))
@@ -60,6 +71,8 @@ class Agent(object):
             reward = self.test_weight(weight)
             avg_reward = sum(reward)/len(reward)
             self.configure[weight] = avg_reward
+            self.getQ(i)
+
         f = open('result.csv', 'w')
         for key, value in sorted(self.configure.iteritems(), key=lambda(k,v): (v,k)):
             f.write(str(key)+','+str(value)+'\n')
