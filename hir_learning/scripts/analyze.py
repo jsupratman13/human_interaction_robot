@@ -39,7 +39,7 @@ class Agent(object):
             s = [i]
             s = np.reshape(s, [1,1])
             Q = self.model.predict(s)
-            f.write(str(i)+','+str(Q[0])+','+str(Q[1])+','+str(Q[2])+'\n')
+            f.write(str(i)+','+str(Q[0][0])+','+str(Q[0][1])+','+str(Q[0][2])+'\n')
         f.close()
 
     def test_weight(self,weightname):

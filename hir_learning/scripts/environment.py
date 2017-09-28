@@ -188,7 +188,8 @@ class Environment(object):
             pass
 
         def get_size(self):
-            return 12
+            #return 12
+            return 1
 
     class ActionSpace(object):
         def __init__(self):
