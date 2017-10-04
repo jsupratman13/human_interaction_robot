@@ -34,12 +34,14 @@ class Agent(object):
     def getQ(self,weight_index):
         f = open('episode'+str(weight_index)+'.csv', 'w')
         Q = []
-        state = np.linspace(-2,2,num=100)
+        state_pos = np.linspace(-0.1, 0.1,num=100)
+        state_vel = np.linspace(-0.1, 0.1,num=100)
         for i in state:
-            s = [i]
-            s = np.reshape(s, [1,1])
-            Q = self.model.predict(s)
-            f.write(str(i)+','+str(Q[0][0])+','+str(Q[0][1])+','+str(Q[0][2])+'\n')
+            for j in state:
+                s = [i,j]
+                s = np.reshape(s, [1,2])
+                Q = self.model.predict(s)
+                f.write(str(i)+','+str(Q[0][0])+','+str(Q[0][1])+','+str(Q[0][2])+'\n')
         f.close()
 
     def test_weight(self,weightname):

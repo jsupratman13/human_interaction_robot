@@ -39,6 +39,8 @@ class Environment(object):
         self.__observation_space = Environment.ObservationSpace()
         self.__action_space = Environment.ActionSpace()
 
+        self.force = 0
+
     @property
     def action_space(self):
         return self.__action_space
@@ -46,12 +48,17 @@ class Environment(object):
     def observation_space(self):
         return self.__observation_space
 
+    def recording(self, force, state):
+        f = open('state_force.csv','a')
+        f.write(str(force)+','+str(state[0])+','+str(self.vel_error[2])+'\n')
+        f.close()
+
     def __get_state(self, msg):
         self.joint_names =  msg.joint_names
         self.pos_error = list(msg.error.positions)
         self.vel_error = list(msg.error.velocities)
-        #self.state = [self.pos_error[2], self.vel_error[2]]
-        self.state = [self.pos_error[2]]
+        self.state = [self.pos_error[2], self.vel_error[2]]
+        #self.state = [self.pos_error[2]]
 
     def move(self, action):
         vel = Twist()
@@ -72,6 +79,7 @@ class Environment(object):
 
     def apply_force_pull(self):
         self.contact = Environment.PULL
+        self.force = random.randint(10,30)
         try:
             body_name = 'robot1::wrist_roll_link'
             reference_frame = 'robot1::wrist_roll_link'
@@ -80,7 +88,7 @@ class Environment(object):
             point.y = 0
             point.z = 0
             wrench = Wrench()
-            wrench.force.x = random.randint(10,30)
+            wrench.force.x = self.force
             wrench.force.y = 0
             wrench.force.z = 0
             wrench.torque.x = 0
@@ -96,6 +104,7 @@ class Environment(object):
 
     def apply_force_push(self):
         self.contact = Environment.PUSH
+        self.force = random.randint(-30, -10)
         try:
             body_name = 'robot1::wrist_roll_link'
             reference_frame = 'robot1::wrist_roll_link'
@@ -104,7 +113,7 @@ class Environment(object):
             point.y = 0
             point.z = 0
             wrench = Wrench()
-            wrench.force.x = random.randint(-30,-10)
+            wrench.force.x = self.force
             wrench.force.y = 0
             wrench.force.z = 0
             wrench.torque.x = 0
@@ -119,6 +128,7 @@ class Environment(object):
             rospy.loginfo('apply force failed %s', e)
 
     def clear_force(self):
+        self.force = 0
         try:
             body_name = 'robot1::wrist_roll_link'
             self.__clear_force(body_name)
@@ -145,7 +155,7 @@ class Environment(object):
         self.move(Environment.STOP)
         self.clear_force()
         self.reset_sim() 
-        time.sleep(5)
+        time.sleep(10)
        
         if 0 < test <= 3:
             print 'pull'
@@ -178,6 +188,8 @@ class Environment(object):
         if math.fabs(rospy.Time.now().secs-self.initial_step_time) > 10:
             is_terminal = True
 
+        #self.recording(self.force, self.state)
+
         #if reward > -0.08:
         #    is_terminal = True
 
@@ -189,7 +201,7 @@ class Environment(object):
 
         def get_size(self):
             #return 12
-            return 1
+            return 2
 
     class ActionSpace(object):
         def __init__(self):
