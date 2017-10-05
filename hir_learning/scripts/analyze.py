@@ -36,8 +36,8 @@ class Agent(object):
         Q = []
         state_pos = np.linspace(-0.1, 0.1,num=100)
         state_vel = np.linspace(-0.1, 0.1,num=100)
-        for i in state:
-            for j in state:
+        for i in state_pos:
+            for j in state_vel:
                 s = [i,j]
                 s = np.reshape(s, [1,2])
                 Q = self.model.predict(s)
