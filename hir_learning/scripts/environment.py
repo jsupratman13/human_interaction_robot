@@ -77,34 +77,8 @@ class Environment(object):
         vel.angular.z = 0
         self.pub.publish(vel)
 
-    def apply_force_pull(self):
-        self.contact = Environment.PULL
-        self.force = random.randint(10,30)
-        try:
-            body_name = 'robot1::wrist_roll_link'
-            reference_frame = 'robot1::wrist_roll_link'
-            point = Point()
-            point.x = 0
-            point.y = 0
-            point.z = 0
-            wrench = Wrench()
-            wrench.force.x = self.force
-            wrench.force.y = 0
-            wrench.force.z = 0
-            wrench.torque.x = 0
-            wrench.torque.y = 0
-            wrench.torque.z = 0
-            start_time = rospy.Time.now()
-            duration = rospy.Duration(10)
-
-            self.__apply_force(body_name, reference_frame, point, wrench, start_time, duration)
-
-        except rospy.ServiceException as e:
-            rospy.loginfo('apply force failed %s', e)
-
-    def apply_force_push(self):
-        self.contact = Environment.PUSH
-        self.force = random.randint(-30, -10)
+    def apply_force(self, force):
+        self.force = force
         try:
             body_name = 'robot1::wrist_roll_link'
             reference_frame = 'robot1::wrist_roll_link'
@@ -159,23 +133,29 @@ class Environment(object):
        
         if 0 < test <= 3:
             print 'pull'
-            self.apply_force_pull()
+            self.contact = Environment.PULL
+            self.apply_force(random.randint(10,30))
         elif 3 < test <= 6:
             print 'push'
-            self.apply_force_push()
+            self.contact = Environment.PUSH
+            self.apply_force(random.randint(-30,-10))
         elif 6 < test <= 9:
-            print 'none'
+            self.contact = Environment.NONE
+            self.apply_force(0)
         else: 
             prob = random.random()*100
             if prob < 33:
                 print 'pull'
-                self.apply_force_pull()
+                self.contact = Environment.PULL
+                self.apply_force(random.randint(10,30))
             elif 33 <= prob < 66:
                 print 'push'
-                self.apply_force_push()
+                self.contact = Environment.PUSH
+                self.apply_force(random.randint(-30,-10))
             else:
                 print 'none'
                 self.contact = Environment.NONE
+                self.apply_force(0)
 
         self.initial_step_time = rospy.Time.now().secs
         return self.state
