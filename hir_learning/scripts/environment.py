@@ -57,7 +57,8 @@ class Environment(object):
         self.joint_names =  msg.joint_names
         self.pos_error = list(msg.error.positions)
         self.vel_error = list(msg.error.velocities)
-        self.state = [self.pos_error[2], self.vel_error[2]]
+        self.state = self.pos_error + self.vel_error
+        #self.state = [self.pos_error[2], self.vel_error[2]]
         #self.state = [self.pos_error[2]]
 
     def move(self, action):
@@ -140,6 +141,7 @@ class Environment(object):
             self.contact = Environment.PUSH
             self.apply_force(random.randint(-30,-10))
         elif 6 < test <= 9:
+            print 'none'
             self.contact = Environment.NONE
             self.apply_force(0)
         else: 
@@ -180,8 +182,8 @@ class Environment(object):
             pass
 
         def get_size(self):
-            #return 12
-            return 2
+            return 12
+            #return 2
 
     class ActionSpace(object):
         def __init__(self):
