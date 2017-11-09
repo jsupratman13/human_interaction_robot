@@ -1,7 +1,6 @@
 controller_list:
-  - name: fake_arm_controller
+  - name: fake_manipulator_controller
     joints:
-      - shoulder_slider
       - shoulder_roll_joint
       - shoulder_pitch_joint
       - elbow_pitch_joint
