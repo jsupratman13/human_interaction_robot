@@ -16,7 +16,7 @@ def move_group():
 
     robot = moveit_commander.RobotCommander()
     scene = moveit_commander.PlanningSceneInterface()
-    group = moveit_commander.MoveGroupCommander("arm")
+    group = moveit_commander.MoveGroupCommander("manipulator")
 
     rospy.loginfo("--------- reference frame: %s", group.get_planning_frame())
     rospy.loginfo("--------- end effector: %s", group.get_end_effector_link())
@@ -39,7 +39,7 @@ def move_group():
 
     rospy.loginfo("--------- generating plan based on predefined pos")
     group.clear_pose_targets()
-    group.set_named_target('initial_pose')
+    group.set_named_target('initial')
     plan2 = group.plan()
     group.go(wait=True)
     rospy.loginfo("--------- waiting while rviz display plan2")
@@ -48,7 +48,7 @@ def move_group():
 
     rospy.loginfo("--------- generate plan while robot is moving")
     group.clear_pose_targets()
-    group.set_named_target('pulled_pose')
+    group.set_named_target('extend')
     plan3 = group.plan()
     group.go(wait=True)
     vel.linear.x = 0.5

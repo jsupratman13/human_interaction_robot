@@ -15,11 +15,11 @@ def move_group():
 
     robot = moveit_commander.RobotCommander()
     scene = moveit_commander.PlanningSceneInterface()
-    group = moveit_commander.MoveGroupCommander("arm")
+    group = moveit_commander.MoveGroupCommander("manipulator")
 
     rospy.loginfo("--------- generating plan based on predefined pos")
     group.clear_pose_targets()
-    group.set_named_target('initial_pose')
+    group.set_named_target('initial')
     plan2 = group.plan()
     group.go(wait=True)
     rospy.loginfo("--------- waiting while rviz display plan2")
