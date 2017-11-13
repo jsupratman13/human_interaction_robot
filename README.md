@@ -2,15 +2,20 @@
 Undergraduate thesis
 
 ## System
-* Ubuntu 14.04 LTS
-* ROS indigio
+* Ubuntu 16.04 LTS
+* ROS Kinetic
 * Gazebo 7
 
 ## Dependency Repositories
 * https://github.com/open-rdc/icart_mini
-* https://github.com/open-rdc/orne_navigation
+* https://github.com/jsupratman13/kondo_driver
 
 ## Usage
+### bring up real robot
+```
+roslaunch hir_bringup interaction_robot.launch
+```
+
 ### bring up simulated robot
 ```
 roslaunch hir_bringup interaction_robot_sim.launch
