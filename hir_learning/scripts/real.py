@@ -69,7 +69,6 @@ class Agent(object):
         self.model.load_weights(self.weight)
         self.model.compile(loss='mse', optimizer=Adam(lr=self.alpha))
         self.epsilon = 0.001
-        self.error = [1]
         try:
             while not self.error:
                 pass
