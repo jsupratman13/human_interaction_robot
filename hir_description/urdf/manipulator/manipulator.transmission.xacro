@@ -13,7 +13,7 @@
       </actuator>
 	</transmission>
   </xacro:macro>
-
+<!--
   <transmission name="trans_shoulder_slider">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="shoulder_slider">
@@ -24,7 +24,7 @@
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
-
+-->
   <xacro:arm_transmission name="shoulder_roll"/>
   <xacro:arm_transmission name="shoulder_pitch"/>
   <xacro:arm_transmission name="elbow_pitch"/>

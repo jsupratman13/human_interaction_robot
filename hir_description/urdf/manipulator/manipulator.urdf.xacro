@@ -9,7 +9,7 @@
 
   
   <!-- joint 0 -->
-  <joint name="shoulder_slider" type="prismatic">
+  <joint name="shoulder_slider" type="fixed">
     <!-- <origin xyz="0.01 0 0.79" rpy="0 0 -1.5707"/> -->
 	<origin xyz="0.01 0 0.9" rpy="0 0 -1.5707" />
     <parent link="base_link"/>
