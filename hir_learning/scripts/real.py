@@ -32,6 +32,7 @@ class Agent(object):
         return np.argmax(Q[0])
 
     def __get_state(self, msg):
+        #self.error = [msg.effort[0],msg.effort[1]]
         self.error = list(msg.effort)
 
     def reset(self):
@@ -49,10 +50,10 @@ class Agent(object):
         vel = Twist()
         if action == Environment.FORWARD:
             print 'forward'
-            vel.linear.x = 0.5
+            vel.linear.x = 0.2
         elif action == Environment.REVERSE:
             print 'reverse'
-            vel.linear.x = -0.5
+            vel.linear.x = -0.2
         else:
             print 'stop'
             vel.linear.x = 0.0
