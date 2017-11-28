@@ -8,13 +8,13 @@ from keras.optimizers import Adam
 import rospy, time, sys
 from sensor_msgs.msg import JointState
 from geometry_msgs.msg import Twist
-from environment import Environment
+from real_environment import Environment
 
 class Agent(object):
     def __init__(self, model, weight):
         self.alpha = 0.001
         self.ntrials = 6
-        self.nstates = 6
+        self.nstates = 3
         self.model = self.load_model(model)
         self.weight = weight
         rospy.Subscriber('/manipulator/joint_states', JointState, self.__get_state)
@@ -32,8 +32,8 @@ class Agent(object):
         return np.argmax(Q[0])
 
     def __get_state(self, msg):
-        #self.error = [msg.effort[0],msg.effort[1]]
-        self.error = list(msg.effort)
+        self.error = [msg.effort[0],msg.effort[1],msg.effort[3]]
+        #self.error = list(msg.effort)
 
     def reset(self):
         vel = Twist()
