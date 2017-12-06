@@ -3,7 +3,7 @@
   <name>hir_moveit_config</name>
   <version>0.3.0</version>
   <description>
-     An automatically generated package with all the configuration and launch files for using the interaction_robot with the MoveIt! Motion Planning Framework
+     An automatically generated package with all the configuration and launch files for using the manipulator with the MoveIt! Motion Planning Framework
   </description>
   <author email="supratmanjoshua@gmail.com">Joshua Supratman</author>
   <maintainer email="supratmanjoshua@gmail.com">Joshua Supratman</maintainer>
