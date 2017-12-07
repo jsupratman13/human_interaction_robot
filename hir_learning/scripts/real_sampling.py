@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import numpy as np
-import rospy
+import rospy,math
 import time, collections, random, sys
 from keras.optimizers import Adam
 from keras.models import model_from_json
@@ -22,6 +22,7 @@ class Robot(object):
         self.error = []
         self.odom = []
         self.initial_flag = True
+        self.environment_flag = Environment.NONE
         self.index = 0 
         self.f = open(filename, 'w')
 
@@ -43,7 +44,7 @@ class Robot(object):
         json_file.close()
         return model
 
-    def step(self, action):
+    def move(self, action):
         vel = Twist()
         if action == Environment.FORWARD:
             vel.linear.x = 0.2
@@ -62,6 +63,8 @@ class Robot(object):
         if np.random.rand() < self.epsilon:
             return np.random.choice([Environment.FORWARD, Environment.STOP, Environment.REVERSE])
         else:
+            state = [state[0][0],state[0][1],state[0][3]]
+            state = np.reshape(state, [1,len(state)])
             Q = self.target_model.predict(state)
             return np.argmax(Q[0])
 
@@ -86,8 +89,8 @@ class Robot(object):
         self.f.write(str(done)+'\n')
 
     def get_reward(self, s, s2, a):
-        reward = -1 * sum([math.fabs(state) for state in s2])   
-        return 100
+        reward = -1 * sum([math.fabs(state) for state in s2[0]])   
+        return reward
 
     def sample(self, rate):
         step = 0
@@ -111,9 +114,9 @@ class Robot(object):
             step += 1
             if not self.sub.get_num_connections():
                 break
-
+             
             a = self.epsilon_greedy(s)
-            self.step(a)
+            self.move(a)
             rate.sleep()
             s2 = np.reshape(self.error, [1,self.nstates])
             r = self.get_reward(s,s2,a)
@@ -123,7 +126,11 @@ class Robot(object):
             s = s2
 
             if step > 500:
-                raw_input('reset simulation')
+                self.environment_flag = np.random.choice([Environment.PUSH, Environment.NONE, Environment.PULL])
+                if self.environment_flag == Environment.PUSH: info = 'PUSH!'
+                elif self.environment_flag == Environment.PULL: info='PULL!'
+                elif self.environment_flag == Environment.NONE: info = 'NONE!'
+                raw_input('reset simulation'+info)
                 step = 0
                 if self.epsilon > self.min_epsilon:
                     self.epsilon *= self.epsilon_decay
@@ -134,7 +141,7 @@ if __name__ == '__main__':
     rospy.loginfo('start')
     robot = Robot(str(sys.argv[1]), str(sys.argv[2]), str(sys.argv[3]))
     i = 0
-    rate = rospy.Rate(50)
+    rate = rospy.Rate(5)
     try:
         robot.sample(rate)
 
