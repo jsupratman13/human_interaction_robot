@@ -85,7 +85,8 @@ class Robot(object):
             self.f.write(str(j)+',')
         self.f.write(str(done)+'\n')
 
-    def get_reward(self, s, s2, r):
+    def get_reward(self, s, s2, a):
+        reward = -1 * sum([math.fabs(state) for state in s2])   
         return 100
 
     def sample(self, rate):
