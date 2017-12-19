@@ -185,10 +185,10 @@ class Agent(object):
 
     def plot(self):
         file1 = open('result.csv', 'a')
-        file1.write('episode,reward,loss\n')
         if self.episode:
             episodes = range(self.episode, self.episode+len(self.reward_list),1)
         else:
+            file1.write('episode,reward,loss\n')
             episodes = range(len(self.reward_list))
         for i in episodes:
             file1.write(str(i))
