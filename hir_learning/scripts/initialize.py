@@ -40,7 +40,7 @@ def move_pos():
     joint = Float64()
     
     shoulder_traj = [-0.2]
-    elbow_traj = np.arange(0, 3.2, 0.2)
+    elbow_traj = np.arange(0, 3.0, 0.2)
     wrist_traj = np.arange(0, 1.5 , 0.2)
 
     for e in elbow_traj:

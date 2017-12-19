@@ -2,19 +2,23 @@
 <launch>
 	
 	<!-- Load joint controller configurations from YAML file to parameter server -->
-	<rosparam file="$(find hir_control)/config/trajectory_control.yaml" command="load" />
+	<rosparam file="$(find hir_control)/config/position_control.yaml" command="load" />
 	<rosparam file="$(find icart_mini_control)/config/icart_mini_control.yaml" command="load" />
 
 	<!-- load controller -->
-	<node name="joint_state_controller" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="icart_mini /manipulator/left_arm_controller /manipulator/shoulder_slider_controller /manipulator/joint_state_controller" />
+	<node name="joint_state_controller" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="icart_mini /manipulator/joint_state_controller /manipulator/shoulder_roll_controller /manipulator/shoulder_pitch_controller /manipulator/elbow_pitch_controller /manipulator/wrist_pitch_controller /manipulator/wrist_yaw_controller /manipulator/wrist_roll_controller" />
 
 	<!-- convert joint states to topic -->
+    <!--
 	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
-		<!--<param name="/use_gui" value="false"/>
-		<rosparam param="/source_list">[/move_group/fake_controller_joint_states]</rosparam> -->
+        <remap from="/joint_states" to="/manipulator/joint_states" />
+		<param name="/use_gui" value="false"/>
+		<rosparam param="/source_list">[/manipulator/joint_states]</rosparam>
 	</node>
+    -->
 	
 	<!-- convert joint states to TF for rviz etc -->
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen">
+        <remap from="/joint_states" to="/manipulator/joint_states" />
 	</node>
 </launch>
