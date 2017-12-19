@@ -187,7 +187,7 @@ class Agent(object):
         file1 = open('result.csv', 'a')
         file1.write('episode,reward,loss\n')
         if self.episode:
-            episodes = range(self.episode, len(self.reward_list),1)
+            episodes = range(self.episode, self.episode+len(self.reward_list),1)
         else:
             episodes = range(len(self.reward_list))
         for i in episodes:
@@ -215,7 +215,6 @@ if __name__ == '__main__':
 
     try:
         agent.train()
-        agent.plot()
         env.reset()
     except (KeyboardInterrupt, SystemExit):
         pass
