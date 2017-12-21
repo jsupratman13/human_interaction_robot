@@ -37,7 +37,6 @@ class Agent(object):
         self.batch_size = config.getint('network', 'batch_size')
         self.updateQ = config.getint('network', 'update_network')
         self.memory = collections.deque(maxlen=config.getint('network', 'memory_size'))
-        self.weights_name = 'episodefinal.hdf5'
         
         np.random.seed(123)
         self.env = env
@@ -171,7 +170,7 @@ class Agent(object):
             if self.epsilon > self.min_epsilon:
                 self.epsilon *= self.epsilon_decay
             
-        self.model.save_weights(self.weights_name)
+        self.model.save_weights('targetfinal.hdf5')
 
     def replay(self):
         minibatch = random.sample(self.memory,self.batch_size)
@@ -190,8 +189,8 @@ class Agent(object):
         else:
             file1.write('episode,reward,loss\n')
             episodes = range(len(self.reward_list))
-        for i in episodes:
-            file1.write(str(i))
+        for i in range(len(episodes)):
+            file1.write(str(episodes[i]))
             file1.write(','+str(self.reward_list[i]))
             file1.write(','+str(self.loss_list[i]))
             file1.write('\n')
