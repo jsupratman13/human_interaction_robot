@@ -5,4 +5,3 @@ controller_list:
       - elbow_pitch_joint
       - wrist_pitch_joint
       - wrist_yaw_joint
-      - wrist_roll_joint
