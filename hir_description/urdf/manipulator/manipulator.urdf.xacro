@@ -42,7 +42,7 @@
   </link>
 
   <!-- joint 1 -->
-  <joint name="shoulder_roll_joint" type="revolute">
+  <joint name="shoulder_roll_joint" type="fixed">
     <origin xyz="0 0.1 0.03" rpy="0 0 0"/>
     <parent link="shoulder_link"/>
     <child link="shoulder_roll_link"/>
@@ -192,7 +192,7 @@
   </link>
 
   <!--joint 6 + hand -->
-  <joint name="wrist_roll_joint" type="revolute">
+  <joint name="wrist_roll_joint" type="fixed">
     <origin xyz="0 0 -0.05" rpy="0 0 0"/>
     <parent link="wrist_yaw_link"/>
     <child link="wrist_roll_link"/>
