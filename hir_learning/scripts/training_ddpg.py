@@ -5,7 +5,7 @@
 #last modified: 2018.06.28
 #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv#
 import numpy as np
-import gym
+import time
 import json
 import matplotlib
 import matplotlib.pyplot as plt
@@ -18,9 +18,9 @@ import keras.backend as K
 import tensorflow as tf
 import ConfigParser
 
-import rospy
-from real_environment import Environment
-from sensor_msgs.msg import Joy
+#import rospy
+from sim_environment import Environment
+#from sensor_msgs.msg import Joy
 
 class Agent(object):
     def __init__(self,env):
@@ -38,8 +38,8 @@ class Agent(object):
         self.nepisodes = config.getint('training','episodes')
         self.weights_name = 'episodefinal.hdf5'
         
-        self.nstates = env.observation_space.shape[0]
-        self.nactions = env.action_space.shape[0]
+        self.nstates = env.observation_space.get_size()
+        self.nactions = env.action_space.get_size()
         
         self.batch_size = config.getint('network','batch_size')
         self.memory = collections.deque(maxlen=config.getint('network','memory_size'))
@@ -64,19 +64,23 @@ class Agent(object):
         self.critic.update_target_network()
         for episode in range(self.nepisodes):
             s = self.env.reset()
-            s = np.reshape(s,[1,self.nstates])
+            #s = np.reshape(s,[1,self.nstates])
+            s_t = np.hstack((s[0], s[1]))
             treward = []
             while True:
                 loss = 0.0
                 #a = self.actor.model.predict(s)
-                a = self.actor.model.predict(s.reshape(1,s.shape[0])) + self.noise()
+                #a = self.actor.model.predict(s) + self.noise()
+                a = self.actor.model.predict(s_t.reshape(1, s_t.shape[0])) + self.noise()
                 a[0][0] = max(env.action_space.low[0], min(env.action_space.high[0], a[0][0]))
                 a[0][1] = max(env.action_space.low[1], min(env.action_space.high[1], a[0][1]))
 
-                s2, r, done = self.env.step(np.array(a[0]))
-                s2 = np.reshape(s2, [1,self.nstates])
+                s2, r, done = self.env.step(a[0])
+                #s2 = np.reshape(s2, [1,self.nstates])
+                s2_t = np.hstack((s2[0], s2[1]))
 
-                self.memory.append((s,a[0],r,s2,done))
+                #self.memory.append((s,a[0],r,s2[0],done))
+                self.memory.append((s,a[0],r, s2_t,done))
 
                 if len(self.memory) >= self.batch_size:
                     minibatch = random.sample(self.memory,self.batch_size)
@@ -109,7 +113,7 @@ class Agent(object):
 
 
                 if done:
-                    treward = sum(treward)
+                    treward = sum(treward)/len(treward)
                     
                     #save checkpoint
                     if treward >= max_r:
@@ -133,19 +137,34 @@ class Agent(object):
             s = np.reshape(s,[1,self.nstates])
             treward = 0
             while True:
-                self.env.render()
-                a = model.predict(s.reshape(1,s.shape[0]))
-                s2, r, done, info = self.env.step(np.array(a[0]))
+                #self.env.render()
+                a = model.predict(s)
+                s2, r, done = self.env.step(np.array(a[0]))
                 s = np.reshape(s2, [1,self.nstates])
                 treward += r
                 if done:
                     print 'trial: '+str(trial+1) + ' reward: ' + str(treward)
                     break
 
+    def test_single(self,modelname,weightname,s1, s2):
+        model = self.load_model(modelname)
+        model.load_weights(weightname)
+        model.compile(loss='mse', optimizer=Adam(lr=0.001))
+        env.reset()
+        s = [s1, s2]
+        s = np.reshape(s,[1,self.nstates])
+        treward = 0
+        for i in range(5):
+            a = model.predict(s)
+            s2, r, done = self.env.step(np.array(a[0]))
+            s = np.reshape(s2, [1,self.nstates])
+            treward += r
+            print s2
+
     def record(self):
         file1 = open('result_ddpg.csv', 'a')
-        if self.episode:
-            episodes = range(self.episode, self.episode+len(self.reward_list),1)
+        if self.nepisodes:
+            episodes = range(self.nepisodes, self.nepisodes+len(self.reward_list),1)
         else:
             file1.write('episode,reward,loss\n')
             episodes = range(len(self.reward_list))
@@ -155,6 +174,14 @@ class Agent(object):
             file1.write(','+str(self.loss_list[i]))
             file1.write('\n')
         file1.close()
+
+    def save_model(self):
+        actor_model = self.actor.model.to_json()
+        critic_model = self.critic.model.to_json()
+        with open('initial_actor', 'w') as json_file:
+            json_file.write(actor_model)
+        with open('initial_critic', 'w') as json_file:
+            json_file.write(critic_model)
 
 class Ornstein_Uhlenbeck(object):
     def __init__(self, mu, sigma=0.3, theta=0.15, dt=1e-2, x0=None):
@@ -250,27 +277,33 @@ class CriticNetwork(object):
         return model, action_input, state_input
 
 if __name__ == '__main__':
-    rospy.init_node('ddpg_learning', disable_signals=True)
-    rospy.loginfo('START ONLINE TRAINING DDPG')
+    #rospy.init_node('ddpg_learning', disable_signals=True)
+    #rospy.loginfo('START ONLINE TRAINING DDPG')
     env = Environment()
     agent = Agent(env)
     start_time = time.time()
-    if len(sys.argv) > 3:
-        #actor_model actor_target_weight, actor_current_weight, critic_model, critic_target_weight, critic_current_weight, nth episode
-        pass
+    if len(sys.argv) > 2:
+        agent.test_single(str(sys.argv[1]), str(sys.argv[2]), float(sys.argv[3]),float(sys.argv[4]))
+        assert False, 'finished test'
+
+    elif len(sys.argv) > 1:
+        agent.test(str(sys.argv[1]), str(sys.argv[2]))
+        assert False, 'finished test'
+
     else:
-        agent.save_model(agent.mode, initial_model)
+        agent.save_model()
 
     try:
         agent.train()
-        rospy.loginfo('COMPLETE TRAINING')
+       # rospy.loginfo('COMPLETE TRAINING')
         env.reset()
-        ros.spin()
+       # ros.spin()
     except (KeyboardInterrupt, SystemExit):
         pass
     finally:
         agent.record()
         m,s = divmod(time.time()-start_time,60)
         h,m = divmod(m,60)
-        rospy.loginfo('time took %d:%02d:%02d' %(h,m,s))
-        rospy.loginfo('exit time')
+        #rospy.loginfo('time took %d:%02d:%02d' %(h,m,s))
+        print 'time took %d:%02d:%02d' %(h,m,s)
+        #rospy.loginfo('exit time')
