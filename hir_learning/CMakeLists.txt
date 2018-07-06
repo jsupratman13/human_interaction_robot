@@ -21,5 +21,5 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(demo src/demo.cpp)
-target_link_libraries(demo ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+#add_executable(demo src/demo.cpp)
+#target_link_libraries(demo ${catkin_LIBRARIES} ${Boost_LIBRARIES})

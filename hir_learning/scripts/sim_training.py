@@ -21,7 +21,7 @@ import ConfigParser
 class Agent(object):
     def __init__(self,env):
         config = ConfigParser.RawConfigParser()
-        config.read('parameters.cfg')
+        config.read('sim_parameters.cfg')
         self.gamma = config.getfloat('training','gamma')
         self.alpha = config.getfloat('training', 'alpha')
         self.nepisodes = config.getint('training', 'episodes')

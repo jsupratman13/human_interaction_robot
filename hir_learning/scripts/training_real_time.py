@@ -12,7 +12,7 @@ import json
 #import matplotlib
 #matplotlib.use('Agg')
 #import matplotlib.pyplot as plt
-import collections,random,sys,time
+import collections,random,sys,time,math,copy
 from keras.models import Sequential, model_from_json
 from keras.layers import Dense
 from keras.optimizers import Adam
@@ -52,14 +52,23 @@ class Agent(object):
         self.episode = None
 
     def get_joy(self, msg):
-        force = msg.axes[1]
+        force1 = msg.axes[0]
+        force2 = msg.axes[1]
         reset = msg.buttons[0]
-        if force > 0.5:
-            force = Environment.PUSH
-        elif force < -0.5:
-            force = Environment.PULL
+        if math.fabs(force1) < 0.7:
+            if force2 > 0.5:
+                force = Environment.PUSH
+            elif force2 < -0.5:
+                force = Environment.PULL
+            else:
+                force = Environment.NONE
         else:
-            force = Environment.NONE
+            if force1 > 0.5:
+                force = Environment.RIGHT
+            elif force1 < -0.5:
+                force = Environment.LEFT
+            else:
+                force = Environment.NONE
 
         self.joy = [force, reset]
 
@@ -85,18 +94,32 @@ class Agent(object):
         self.model.compile(loss='mse', optimizer=Adam(lr=self.alpha))
         return model
 
-    def epsilon_greedy(self,state):
+    def epsilon_greedy(self,state, episode):
         if np.random.rand() < self.epsilon:
             action = self.env.action_space.sample()
         else:
             Q = self.target_model.predict(state)
             action = np.argmax(Q[0])
-        if action == Environment.STOP:
-            name = 'STOP'
-        elif action == Environment.FORWARD:
+            if episode <= 4:
+                action = Environment.STOP
+        if action == Environment.FORWARD:
             name = 'FORWARD'
-        else:
+        elif action == Environment.REVERSE:
             name = 'REVERSE'
+        elif action == Environment.TURN_LEFT:
+            name = 'TURN LEFT'
+        elif action == Environment.TURN_RIGHT:
+            name = 'TURN RIGHT'
+        elif action == Environment.LEFT_FORWARD:
+            name = 'LEFT_FORWARD'
+        elif action == Environment.RIGHT_FORWARD:
+            name = 'RIGHT_FORWARD'
+        elif action == Environment.LEFT_REVERSE:
+            name = 'LEFT_REVERSE'
+        elif action == Environment.RIGHT_REVERSE:
+            name = 'RIGHT_REVERSE'
+        else:
+            name = 'STOP'
         return action, name
 
     def wait_keyboard_input(self):
@@ -107,9 +130,10 @@ class Agent(object):
             info+=' push arm'
         elif self.env.contact == Environment.PULL:
             info+=' pull arm'
-        #raw_input(info)
-        while not self.joy[1]:
-            pass
+        raw_input(info)
+        #while not self.joy[1]:
+        self.env.base_reward = copy.deepcopy(self.env.pos)
+        #    pass
 
     def train(self):
         max_r = -1000000
@@ -120,7 +144,8 @@ class Agent(object):
             assert False, 'failed to get joint state'
 
         max_r = -1000000
-        rate = rospy.Rate(5)
+        #f = open('data.csv', 'w')
+        #f.write('state, , , , , ,action,new_state, , , , , ,reward\n')
         for episode in range(self.nepisodes):
             if self.episode and self.episode > episode:
                 continue
@@ -132,10 +157,10 @@ class Agent(object):
             self.wait_keyboard_input()
             while not rospy.is_shutdown():
                 if self.env.state:
-                    a, name = self.epsilon_greedy(s)
-            
-                    rate.sleep()
+                    a, name = self.epsilon_greedy(s, episode)
                     s2, r, done = self.env.step(a, joy=self.joy[0])
+                    #f.write(str(list(s[0]))+','+str(a)+',') 
+                    #f.write(str(s2)+','+str(r)+'\n')
                     s2 = np.reshape(s2, [1,self.nstates])
                     self.memory.append((s,a,r,s2,done))
                     s = s2
@@ -197,7 +222,7 @@ class Agent(object):
         file1.close()
 
 if __name__ == '__main__':
-    rospy.init_node('online_ddqn', disable_signals=True)
+    rospy.init_node('DDQN', disable_signals=True)
     rospy.loginfo('START ONLINE TRAINING')
     env = Environment()
     agent = Agent(env)

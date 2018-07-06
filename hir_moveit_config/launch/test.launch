@@ -1,7 +1,0 @@
-<launch>
-    <include file="$(find hir_moveit_config)/launch/move_group.launch">
-        <arg name="publish_monitored_planning_scene" value="true" />
-    </include>
-
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find hir_moveit_config)/launch/moveit_rviz.rviz" />
-</launch>
