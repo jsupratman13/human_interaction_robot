@@ -10,37 +10,21 @@ Undergraduate thesis
 * https://github.com/open-rdc/icart_mini
 * https://github.com/jsupratman13/kondo_driver
 
+## Dependent Package
+* Keras
+* Tensorflow
+
 ## Usage
-### Simulator
-#### bring up simulated robot
-```
-roslaunch hir_bringup interaction_robot_sim.launch
-```
-
-#### train robot
-```
-rosrun hir_learning ddqn.py
-```
-
-#### test trained result
-```
-roscd hir_learning/scripts
-python test.py <modelname>.json <weightname>.hdf5
-```
-
-#### evaluate model and weights
-```
-roscd hir_learning/scripts
-python diagnostic.py <modelname>.json *.hdf5
-```
 ### Real Robot
 #### bring up real robot
 ```
 roslaunch hir_bringup interaction_robot.launch
+roslaunch kondo_driver multiple_check.launch
+rosrun hir_learning set_fixed_pos_arm.py
 ```
 
-#### test trained result
+#### train real robot
 ```
 roscd hir_learning/scripts
-python real.py <modelname>.json <weightname>.hdf5
+python training_real_time.py
 ```
