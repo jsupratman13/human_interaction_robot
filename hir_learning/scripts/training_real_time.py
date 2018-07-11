@@ -51,6 +51,11 @@ class Agent(object):
         self.reward_list = []
         self.episode = None
 
+        file2 = open('training.csv', 'a')
+        #file2.write('step,elbow_pitch_pos, shoulder_pitch_pos, shoulder_yaw_pos, wrist_pitch_pos, wrist_yaw_pos, action, elbow_pitch_diff, shoulder_pitch_diff,shoulder_yaw_diff, wrist_pitch_diff, wrist_yaw_diff')
+        file2.write('step,elbow_pitch_pos, shoulder_pitch_pos, wrist_pitch_pos, action, elbow_pitch_diff, shoulder_pitch_diff, wrist_pitch_diff \n')
+        file2.close()
+
     def get_joy(self, msg):
         force1 = msg.axes[0]
         force2 = msg.axes[1]
@@ -74,8 +79,8 @@ class Agent(object):
 
     def create_neural_network(self):
         model = Sequential()
-        model.add(Dense(100,input_dim=self.nstates, activation='relu'))
-        model.add(Dense(100,activation='relu'))
+        model.add(Dense(50,input_dim=self.nstates, activation='relu'))
+        model.add(Dense(10,activation='relu'))
         model.add(Dense(self.nactions,activation='linear'))
         model.compile(loss='mse', optimizer=Adam(lr=self.alpha))
         return model
@@ -144,8 +149,6 @@ class Agent(object):
             assert False, 'failed to get joint state'
 
         max_r = -1000000
-        #f = open('data.csv', 'w')
-        #f.write('state, , , , , ,action,new_state, , , , , ,reward\n')
         for episode in range(self.nepisodes):
             if self.episode and self.episode > episode:
                 continue
@@ -158,9 +161,9 @@ class Agent(object):
             while not rospy.is_shutdown():
                 if self.env.state:
                     a, name = self.epsilon_greedy(s, episode)
+                    self.collect_state(step,self.env.pos,a,self.env.pos_error)
+
                     s2, r, done = self.env.step(a, joy=self.joy[0])
-                    #f.write(str(list(s[0]))+','+str(a)+',') 
-                    #f.write(str(s2)+','+str(r)+'\n')
                     s2 = np.reshape(s2, [1,self.nstates])
                     self.memory.append((s,a,r,s2,done))
                     s = s2
@@ -207,7 +210,7 @@ class Agent(object):
             loss += self.model.train_on_batch(s,target)
         return loss/len(minibatch)
 
-    def plot(self):
+    def collect_reward(self):
         file1 = open('result.csv', 'a')
         if self.episode:
             episodes = range(self.episode, self.episode+len(self.reward_list),1)
@@ -220,6 +223,18 @@ class Agent(object):
             file1.write(','+str(self.loss_list[i]))
             file1.write('\n')
         file1.close()
+
+    def collect_state(self,step,state_pos,action,state_diff):
+        file2 = open('training.csv', 'a')
+        file2.write(str(step)+',')
+        for pos in state_pos:
+            file2.write(str(pos)+',')
+        file2.write(str(action)+',')
+        for diff in state_diff:
+            file2.write(str(diff)+',')
+        file2.write('\n')
+        file2.close()
+        
 
 if __name__ == '__main__':
     rospy.init_node('DDQN', disable_signals=True)
@@ -243,7 +258,7 @@ if __name__ == '__main__':
     except (KeyboardInterrupt, SystemExit):
         pass
     finally:
-        agent.plot()
+        agent.collect_reward()
         m,s = divmod(time.time()-start_time, 60)
         h,m = divmod(m,60)
         rospy.loginfo('time took %d:%02d:%02d' %(h,m,s))

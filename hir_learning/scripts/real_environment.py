@@ -29,12 +29,12 @@ class Environment(object):
     def __init__(self):
         
         self.state = []
-        self.vel_error = [0 for i in range(5)]
-        #self.vel_error = [0 for i in range(3)]
+        #self.vel_error = [0 for i in range(5)]
+        self.vel_error = [0 for i in range(3)]
         self.pos_error = []
         self.pos = []
-        self.prev_pos_error = [0 for i in range(5)]
-        #self.prev_pos_error = [0 for i in range(3)]
+        #self.prev_pos_error = [0 for i in range(5)]
+        self.prev_pos_error = [0 for i in range(3)]
         self.joint_names = []
         self.initial_step_time = time.time()
 
@@ -64,15 +64,17 @@ class Environment(object):
 
     def __get_state(self, msg):
         self.joint_names = list(msg.name)
-        self.pos = [msg.position[0],msg.position[1],msg.position[2]*3,msg.position[3],msg.position[5]*3]
-        self.pos_error = [msg.effort[0],msg.effort[1],msg.effort[2],msg.effort[3],msg.effort[5]]
-        #self.pos_error = [msg.effort[0],msg.effort[1],msg.effort[3]]
+#        self.pos = [msg.position[0],msg.position[1],msg.position[2]*3,msg.position[3],msg.position[5]*3]
+ #       self.pos_error = [msg.effort[0],msg.effort[1],msg.effort[2],msg.effort[3],msg.effort[5]]
+        self.pos = [msg.position[0],msg.position[1],msg.position[3]]
+        self.pos_error = [msg.effort[0],msg.effort[1],msg.effort[3]]
         for i in range(len(self.vel_error)):
             self.vel_error[i] = (self.pos_error[i] - self.prev_pos_error[i])/self.sleep_rate
         for j in range(len(self.prev_pos_error)):
             self.prev_pos_error[i] = self.pos_error[i]
 
         self.state = self.pos_error + self.vel_error
+        #self.state = self.pos_error
     
     def __move(self, action):
         vel = Twist()
@@ -186,8 +188,9 @@ class Environment(object):
             pass
 
         def get_size(self):
-            return 5*2
-            #return 3*2
+            #return 5*2
+            return 3*2
+            #return 3
 
     class ActionSpace(object):
         def __init__(self):
@@ -195,8 +198,8 @@ class Environment(object):
                                 Environment.FORWARD,
                                 Environment.STOP,
                                 Environment.REVERSE,
-                                Environment.TURN_LEFT,
-                                Environment.TURN_RIGHT,
+                                #Environment.TURN_LEFT,
+                                #Environment.TURN_RIGHT,
                                 #Environment.LEFT_FORWARD,
                                 #Environment.RIGHT_FORWARD,
                                 #Environment.LEFT_REVERSE,
