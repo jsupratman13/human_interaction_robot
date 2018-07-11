@@ -61,7 +61,7 @@ class Environment(object):
     def reset(self, test=0):
         self.initial_step_time = time.time()
         self.step_time = 0
-        self.state = [random.uniform(-2,2),random.uniform(-2,2)]
+        self.state = [random.uniform(-0.9,0.9),random.uniform(-0.9,0.9)]
         
         return self.state
 
