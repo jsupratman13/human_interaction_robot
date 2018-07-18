@@ -31,6 +31,7 @@ class Environment(object):
         self.state = []
         #self.vel_error = [0 for i in range(5)]
         self.vel_error = [0 for i in range(3)]
+        self.prev_action = [Environment.NONE for i in range(4)]
         self.pos_error = []
         self.pos = []
         #self.prev_pos_error = [0 for i in range(5)]
@@ -43,7 +44,6 @@ class Environment(object):
         self.__observation_space = Environment.ObservationSpace()
         self.__action_space = Environment.ActionSpace()
 
-        self.prev_action = Environment.STOP
         self.step_time = 0
 
         self.sub = rospy.Subscriber('/manipulator/joint_states', JointState, self.__get_state)
@@ -72,7 +72,8 @@ class Environment(object):
             self.vel_error[i] = (self.pos_error[i] - self.prev_pos_error[i])/self.sleep_rate
         for j in range(len(self.prev_pos_error)):
             self.prev_pos_error[i] = self.pos_error[i]
-
+        
+        #self.state = self.pos_error + self.vel_error + self.prev_action
         self.state = self.pos_error + self.vel_error
         #self.state = self.pos_error
     
@@ -154,6 +155,7 @@ class Environment(object):
         self.contact = random.choice([Environment.NONE, Environment.PUSH, Environment.PULL])
         self.initial_step_time = time.time()
         self.step_time = 0
+        self.prev_action = [Environment.NONE for i in range(4)]
         
         return self.state
 
@@ -163,10 +165,13 @@ class Environment(object):
             self.contact = joy
 
         is_terminal = False
+        lost = False
        
         self.step_time += 1
         self.__move(action)
-        self.prev_action = action
+
+        self.prev_action.pop()
+        self.prev_action.insert(0,action)
 
        # self.collect(action)
 
@@ -175,13 +180,13 @@ class Environment(object):
             is_terminal = True
         
         if self.sub.get_num_connections() != 1:
-            self.state = []
             print 'lost connection'
-        
+            lost = True
+
         self.rate.sleep()        
         reward = self.get_reward(action)
         
-        return self.state, reward, is_terminal
+        return self.state, reward, is_terminal, lost
 
     class ObservationSpace(object):
         def __init__(self):
@@ -191,6 +196,7 @@ class Environment(object):
             #return 5*2
             return 3*2
             #return 3
+            #return 3*2+4
 
     class ActionSpace(object):
         def __init__(self):

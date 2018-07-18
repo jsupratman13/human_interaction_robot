@@ -20,9 +20,12 @@ from real_environment import Environment
 import ConfigParser
 import traceback
 from sensor_msgs.msg import Joy
+import pygame
 
 class Agent(object):
     def __init__(self,env):
+        pygame.init()
+
         rospy.Subscriber('/joy',Joy,self.get_joy)
         self.joy = [Environment.NONE, 0]
 
@@ -105,7 +108,7 @@ class Agent(object):
         else:
             Q = self.target_model.predict(state)
             action = np.argmax(Q[0])
-            if episode <= 4:
+            if episode < self.updateQ:
                 action = Environment.STOP
         if action == Environment.FORWARD:
             name = 'FORWARD'
@@ -157,16 +160,26 @@ class Agent(object):
             treward = []
             loss = 0
             step = 0
+            pygame.mixer.music.load('censor-beep-01.mp3')
+            pygame.mixer.music.play(0)
             self.wait_keyboard_input()
             while not rospy.is_shutdown():
                 if self.env.state:
                     a, name = self.epsilon_greedy(s, episode)
                     self.collect_state(step,self.env.pos,a,self.env.pos_error)
 
-                    s2, r, done = self.env.step(a, joy=self.joy[0])
-                    s2 = np.reshape(s2, [1,self.nstates])
+                    s2, r, done, check = self.env.step(a, joy=self.joy[0])
+                    s2 = np.reshape(s2, [1,self.nstates])   
                     self.memory.append((s,a,r,s2,done))
                     s = s2
+
+                    if check:
+                        pygame.mixer.music.load('censor-beep-10.mp3')
+                        pygame.mixer.music.play(0)
+                        raw_input('press enter if connection is restored')
+                        s = self.env.reset()
+                        s = np.reshape(s,[1,self.nstates]) 
+
                     treward.append(r)
                     print 'step: ' + str(step) + ' reward: ' + str(r) + ' action: ' + name + ' epsilon: ' + str(round(self.epsilon,2)) 
                     step += 1
