@@ -148,12 +148,12 @@ class Environment(object):
         #    reward = 100
         #elif self.contact == Environment.RIGHT and action == Environment.TURN_RIGHT:
         #    reward = 100
-#        stimulus = sum([math.pow(self.base_reward[i] - self.pos[i],2)for i in range(len(self.pos))])
-        stimulus = sum([math.fabs(self.base_reward[i] - self.pos[i]) for i in range(len(self.pos))])
-        reward = - (stimulus - self.prev_stimulus) * 100
-        self.prev_stimulus = stimulus
+        stimulus = sum([math.pow(self.base_reward[i] - self.pos[i],2)for i in range(len(self.pos))])
+#        stimulus = sum([math.fabs(self.base_reward[i] - self.pos[i]) for i in range(len(self.pos))])
+#        reward = - (stimulus - self.prev_stimulus) * 100
+#        self.prev_stimulus = stimulus
 #        print(str(stimulus)+" "+str(self.prev_stimulus))
-#        reward = -stimulus*100
+        reward = -stimulus*100
         return reward
 
     def reset(self, test=0):

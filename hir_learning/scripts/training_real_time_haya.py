@@ -46,18 +46,18 @@ class reinforcement_learning:
             self.q_func.to_gpu()
         except:
             print("No GPU")
-        self.optimizer = chainer.optimizers.Adam(eps=0.1)
+        self.optimizer = chainer.optimizers.Adam(eps=0.01)
         self.optimizer.setup(self.q_func)
-        self.gamma = 0.0
+        self.gamma = 0.65
         self.n_action = n_action
         self.explorer = chainerrl.explorers.ConstantEpsilonGreedy(
-            epsilon=0.1, random_action_func=self.action_space_sample)
+            epsilon=0.3, random_action_func=self.action_space_sample)
         self.replay_buffer = chainerrl.replay_buffer.ReplayBuffer(capacity=10 ** 6)
 #        self.phi = lambda x: x.astype(np.float32, copy=False)
 #        self.phi = 0
         self.agent = chainerrl.agents.DoubleDQN(
             self.q_func, self.optimizer, self.replay_buffer, self.gamma, self.explorer,
-            minibatch_size=4, replay_start_size=50, update_interval=1,
+            minibatch_size=10, replay_start_size=50, update_interval=1,
             target_update_interval=50)
         home = expanduser("~")
         if os.path.isdir(home + '/agent'):
@@ -191,11 +191,10 @@ class Agent(object):
                     self.state[3] = self.state[4] = self.state[5] = 0
                     a, name = self.act_and_trains(self.state, self.reward)
                     s2, self.reward, done, check = self.env.step(a, joy=self.joy[0])
-                    if self.reward < -20:
-                        self.integral_reward = 0
+                    if self.reward < -30:
+                        self.reward = -100
                     else:
-                        self.integral_reward = 0
-                    self.reward += self.integral_reward
+                        self.reward = 0
 
                     if check:
                         pygame.mixer.music.load('censor-beep-10.mp3')
@@ -203,7 +202,7 @@ class Agent(object):
                         raw_input('press enter if connection is restored')
                         s = self.env.reset()
 
-                    print 'epsode:' + str(episode) + 'step: ' + str(step) + ' reward: ' + str(self.reward) + ' action: ' + name + " " + str(self.state)
+                    print 'epsode:' + str(episode) + ' step: ' + str(step) + ' reward: ' + str(self.reward) + ' action: ' + name + " " + str(self.state)
                     step += 1
                 else:
                     done = False
