@@ -177,7 +177,7 @@ class Agent(object):
                         pygame.mixer.music.load('censor-beep-10.mp3')
                         pygame.mixer.music.play(0)
                         raw_input('press enter if connection is restored')
-                        s = self.env.reset()
+                        s = self.env.reset(cont=True)
                         s = np.reshape(s,[1,self.nstates]) 
 
                     treward.append(r)
