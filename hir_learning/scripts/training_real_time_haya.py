@@ -48,7 +48,7 @@ class reinforcement_learning:
             print("No GPU")
         self.optimizer = chainer.optimizers.Adam(eps=0.1)
         self.optimizer.setup(self.q_func)
-        self.gamma = 0.60
+        self.gamma = 0.0
         self.n_action = n_action
         self.explorer = chainerrl.explorers.ConstantEpsilonGreedy(
             epsilon=0.1, random_action_func=self.action_space_sample)
@@ -188,7 +188,7 @@ class Agent(object):
             while not rospy.is_shutdown():
                 if self.env.state:
                     self.state = self.env.state
-#                    self.state[3] = self.state[4] = self.state[5] = 0
+                    self.state[3] = self.state[4] = self.state[5] = 0
                     a, name = self.act_and_trains(self.state, self.reward)
                     s2, self.reward, done, check = self.env.step(a, joy=self.joy[0])
                     if self.reward < -20:
@@ -212,7 +212,7 @@ class Agent(object):
         while not rospy.is_shutdown():
             if self.env.state:
                 self.state = self.env.state
-#                self.state[3] = self.state[4] = self.state[5] = 0
+                self.state[3] = self.state[4] = self.state[5] = 0
                 a = self.act(self.state)
                 s2, self.reward, done, check = self.env.step(a, joy=self.joy[0])
                 print 'act ' + str(self.state)
