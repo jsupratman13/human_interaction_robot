@@ -71,7 +71,7 @@ class Environment(object):
         for i in range(len(self.vel_error)):
             self.vel_error[i] = (self.pos_error[i] - self.prev_pos_error[i])/self.sleep_rate
         for j in range(len(self.prev_pos_error)):
-            self.prev_pos_error[i] = self.pos_error[i]
+            self.prev_pos_error[j] = self.pos_error[j]
         
         #self.state = self.pos_error + self.vel_error + self.prev_action
         self.state = self.pos_error + self.vel_error
@@ -151,10 +151,11 @@ class Environment(object):
         reward = -1 * stimulus * 100
         return reward
 
-    def reset(self, test=0):
+    def reset(self, cont=False):
         self.contact = random.choice([Environment.NONE, Environment.PUSH, Environment.PULL])
         self.initial_step_time = time.time()
-        self.step_time = 0
+        if not cont:
+            self.step_time = 0
         self.prev_action = [Environment.NONE for i in range(4)]
         
         return self.state
