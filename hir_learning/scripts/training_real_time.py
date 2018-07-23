@@ -147,11 +147,13 @@ class Agent(object):
         max_r = -1000000
         try:
             while not self.env.state:
+                print "PASS\r\n"
                 pass
         except KeyboardInterrupt:
             assert False, 'failed to get joint state'
 
         max_r = -1000000
+        self.wait_keyboard_input()
         for episode in range(self.nepisodes):
             if self.episode and self.episode > episode:
                 continue
@@ -162,7 +164,7 @@ class Agent(object):
             step = 0
             pygame.mixer.music.load('censor-beep-01.mp3')
             pygame.mixer.music.play(0)
-            self.wait_keyboard_input()
+#            self.wait_keyboard_input()
             while not rospy.is_shutdown():
                 if self.env.state:
                     a, name = self.epsilon_greedy(s, episode)
