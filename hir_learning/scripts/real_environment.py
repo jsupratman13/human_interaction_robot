@@ -51,7 +51,7 @@ class Environment(object):
 
         #self.f = open('data.csv', 'w')
         self.initial_flag  = True
-        self.sleep_rate = 0.1 #in seconds
+        self.sleep_rate = 0.6 #in seconds
         self.rate = rospy.Rate(1/self.sleep_rate) #in Hz
         self.base_reward = []
         self.prev_stimulus = 0
@@ -84,10 +84,10 @@ class Environment(object):
             vel.linear.x = 0
             vel.angular.z = 0
         elif action == Environment.REVERSE:
-            vel.linear.x = -0.2
+            vel.linear.x = -0.05
             vel.angular.z = 0
         elif action == Environment.FORWARD:
-            vel.linear.x = 0.2
+            vel.linear.x = 0.05
             vel.angular.z = 0
         elif action == Environment.TURN_LEFT:
             vel.linear.x = 0

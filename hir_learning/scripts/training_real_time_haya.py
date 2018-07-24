@@ -68,6 +68,9 @@ class reinforcement_learning:
         self.action = self.agent.act_and_train(obs, reward)
         return self.action
 
+    def stop_episode_and_train(self, obs, reward, done):
+        self.agent.stop_episode_and_train(obs,reward,done)
+
     def act(self, obs):
         self.action = self.agent.act(obs)
         return self.action
@@ -99,8 +102,8 @@ class Agent(object):
         self.loss_list = []
         self.episode = None
 
-        file2 = open('training.csv', 'a')
-        file2.write('step,elbow_pitch_pos, shoulder_pitch_pos, wrist_pitch_pos, action, elbow_pitch_diff, shoulder_pitch_diff, wrist_pitch_diff \n')
+        file2 = open('training2.csv', 'a')
+        file2.write('episode,step,reward,action,state\n')
         file2.close()
 
     def get_joy(self, msg):
@@ -174,6 +177,7 @@ class Agent(object):
         except KeyboardInterrupt:
             assert False, 'failed to get joint state'
         self.wait_keyboard_input()
+        pygame.mixer.music.load('censor-beep-01.mp3')
         for episode in range(self.nepisodes):
             if self.episode and self.episode > episode:
                 continue
@@ -183,7 +187,6 @@ class Agent(object):
             loss = 0
             step = 0
             pygame.mixer.music.load('censor-beep-01.mp3')
-            pygame.mixer.music.play(0)
 #            self.wait_keyboard_input()
             while not rospy.is_shutdown():
                 if self.env.state:
@@ -191,8 +194,10 @@ class Agent(object):
                     self.state[3] = self.state[4] = self.state[5] = 0
                     a, name = self.act_and_trains(self.state, self.reward)
                     s2, self.reward, done, check = self.env.step(a, joy=self.joy[0])
-                    if self.reward < -15:
+                    print self.reward
+                    if self.reward < -0.1:
                         self.reward = -100
+                        pygame.mixer.music.play(0)
                     else:
                         self.reward = 0
 
@@ -202,19 +207,36 @@ class Agent(object):
                         raw_input('press enter if connection is restored')
                         s = self.env.reset()
 
-                    print 'epsode:' + str(episode) + ' step: ' + str(step) + ' reward: ' + str(self.reward) + ' action: ' + name + " " + str(self.state)
+                    print 'epsode:' + str(episode) + 'step: ' + str(step) + ' reward: ' + str(self.reward) + ' action: ' + name + " " + str(self.state)
+                    self.collect_state(episode,step, self.reward, name, self.state)
                     step += 1
                 else:
                     done = False
                 if done:
                     break
+            self.rl.stop_episode_and_train(self.state, self.reward, done)
+
+        pygame.mixer.music.load('censor-beep-02.mp3')
+        pygame.mixer.music.play(0)
         while not rospy.is_shutdown():
             if self.env.state:
                 self.state = self.env.state
                 self.state[3] = self.state[4] = self.state[5] = 0
                 a = self.act(self.state)
                 s2, self.reward, done, check = self.env.step(a, joy=self.joy[0])
-                print 'act ' + str(self.state)
+                print 'act ' + str(a) + ' ' + str(self.state)
+
+    def collect_state(self,episode, step, reward, action,state):
+        file2 = open('training2.csv', 'a')
+        file2.write(str(episode)+',')
+        file2.write(str(step)+',')
+        file2.write(str(reward)+',')
+        file2.write(str(action)+',')
+        for pos in state:
+            file2.write(str(pos)+',')
+        file2.write('\n')
+        file2.close()
+
 
 if __name__ == '__main__':
     rospy.init_node('DDQN', disable_signals=True)
