@@ -52,7 +52,7 @@ class reinforcement_learning:
         self.n_action = n_action
         self.explorer = chainerrl.explorers.ConstantEpsilonGreedy(
             epsilon=0.3, random_action_func=self.action_space_sample)
-        self.replay_buffer = chainerrl.replay_buffer.ReplayBuffer(capacity=10 ** 6)
+        self.replay_buffer = chainerrl.replay_buffer.ReplayBuffer(capacity=10 ** 4)
 #        self.phi = lambda x: x.astype(np.float32, copy=False)
 #        self.phi = 0
         self.agent = chainerrl.agents.DoubleDQN(
@@ -191,7 +191,7 @@ class Agent(object):
                     self.state[3] = self.state[4] = self.state[5] = 0
                     a, name = self.act_and_trains(self.state, self.reward)
                     s2, self.reward, done, check = self.env.step(a, joy=self.joy[0])
-                    if self.reward < -30:
+                    if self.reward < -15:
                         self.reward = -100
                     else:
                         self.reward = 0

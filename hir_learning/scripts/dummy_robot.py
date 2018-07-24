@@ -29,9 +29,9 @@ def draw_graphics(self):
 
 class dummy_robot:
     DURATION = 0.1
-    WIDTH = 0.4
-    RANGE = 0.3
-    ARM_LENGTH = 0.4
+    WIDTH = 0.3
+    RANGE = 0.1
+    ARM_LENGTH = 0.3
 
     def __init__(self):
         rospy.init_node('dummy_robot', anonymous=True)
@@ -49,14 +49,17 @@ class dummy_robot:
         self.state.effort = [0.0, 0.0, 0.0, 0.0]
         self.init_pos = [0.0, 0.0, 0.0, 0.0]
         self.calc_inverse_kinematics(True)
+        self.vel_x1 = self.vel_x2 = 0
 
     def callback_action(self, data):
         self.vel_x = data.linear.x
 
     def callback_joint_state_timer(self, data):
         self.robot_x += self.vel_x * dummy_robot.DURATION
-        self.human_x += 0.1 if self.key == '\\' else 0.0
-        self.human_x -= 0.1 if self.key == '/' else 0.0
+        self.vel_x2 = self.vel_x1
+        self.vel_x1 = self.vel_x
+        self.human_x += 0.05 if self.key == '\\' else 0.0
+        self.human_x -= 0.05 if self.key == '/' else 0.0
         if self.key == 'r':
             rospy.loginfo('RESET\r')
             self.vel_x = 0
