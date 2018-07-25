@@ -4,6 +4,7 @@ import sys,abc,time
 import rospy
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import JointState
+from std_msgs.msg import Float32
 
 class Environment(object):
     __metaclass__ = abc.ABCMeta
@@ -48,6 +49,7 @@ class Environment(object):
 
         self.sub = rospy.Subscriber('/manipulator/joint_states', JointState, self.__get_state)
         self.pub = rospy.Publisher('/icart_mini/cmd_vel', Twist, queue_size=1)
+        self.reward_pub = rospy.Publisher('/reward', Float32, queue_size=1)
 
         #self.f = open('data.csv', 'w')
         self.initial_flag  = True
@@ -154,6 +156,7 @@ class Environment(object):
 #        self.prev_stimulus = stimulus
 #        print(str(stimulus)+" "+str(self.prev_stimulus))
         reward = -stimulus*100
+        self.reward_pub.publish(reward)
         return reward
 
     def reset(self, test=0):

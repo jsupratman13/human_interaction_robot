@@ -75,8 +75,8 @@ class reinforcement_learning:
         self.action = self.agent.act(obs)
         return self.action
 
-    def save_agent(self):
-        self.agent.save('agent')
+    def save_agent(self, file_name):
+        self.agent.save(file_name)
         print("agent SAVED!!")
 
     def action_space_sample(self):
@@ -195,11 +195,11 @@ class Agent(object):
                     a, name = self.act_and_trains(self.state, self.reward)
                     s2, self.reward, done, check = self.env.step(a, joy=self.joy[0])
                     print self.reward
-                    if self.reward < -0.1:
-                        self.reward = -100
-                        pygame.mixer.music.play(0)
-                    else:
-                        self.reward = 0
+#                    if self.reward < -0.1:
+#                        self.reward = -100
+#                        pygame.mixer.music.play(0)
+#                    else:
+#                        self.reward = 0
 
                     if check:
                         pygame.mixer.music.load('censor-beep-10.mp3')
@@ -214,6 +214,7 @@ class Agent(object):
                     done = False
                 if done:
                     break
+            self.rl.save_agent("model"+str(episode))
             self.rl.stop_episode_and_train(self.state, self.reward, done)
 
         pygame.mixer.music.load('censor-beep-02.mp3')
