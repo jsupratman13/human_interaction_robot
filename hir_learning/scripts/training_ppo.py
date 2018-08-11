@@ -35,7 +35,7 @@ class A3CFFSoftmax(chainer.ChainList, a3c.A3CModel):
         return self.pi(state), self.v(state)
 
 class A3CFFGaussian(chainer.Chain, a3c.A3CModel):
-    def __init__(self, n_observations, action_space, n_layers=2, n_nodes=64, bound_mean=False, normalize_obs=False):
+    def __init__(self, n_observations, action_space, n_layers=2, n_nodes=64, bound_mean=True, normalize_obs=False):
         assert bound_mean in [False, True]
         assert normalize_obs in [False, True]
         super(A3CFFGaussian, self).__init__()
@@ -148,16 +148,15 @@ class Agent(object):
                         name = 'RANDOM ' + str(a) + ' '
                     else:
                         a = self.act_and_trains(self.state, self.reward)
-                        if a > self.env.action_space.high(): a = 0.2
-                        if a < self.env.action_space.low(): a = -0.2
+                        a = max(self.env.action_space.low(), min(self.env.action_space.high(), a))
                         name = str(a)
 
-                    if math.fabs(a) < 0.1: a = 0
+                    if math.fabs(a) < 0.03: a = 0
 
                     s2, self.reward, done, check = self.env.step(a)
                     print self.reward
-#                    if self.reward < -0.1:
-#                        self.reward = -100
+                    if self.reward < -1:
+                        self.reward = -100
 #                        pygame.mixer.music.play(0)
 #                    else:
 #                        self.reward = 0
