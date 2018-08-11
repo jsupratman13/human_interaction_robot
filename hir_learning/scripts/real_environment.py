@@ -4,6 +4,7 @@ import sys,abc,time
 import rospy
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import JointState
+from std_msgs.msg import Float32
 
 class Environment(object):
     __metaclass__ = abc.ABCMeta
@@ -47,13 +48,15 @@ class Environment(object):
         self.step_time = 0
 
         self.sub = rospy.Subscriber('/manipulator/joint_states', JointState, self.__get_state)
-        self.pub = rospy.Publisher('/icart_mini/cmd_vel', Twist, queue_size=10)
+        self.pub = rospy.Publisher('/icart_mini/cmd_vel', Twist, queue_size=1)
+        self.reward_pub = rospy.Publisher('/reward', Float32, queue_size=1)
 
         #self.f = open('data.csv', 'w')
         self.initial_flag  = True
         self.sleep_rate = 0.1 #in seconds
         self.rate = rospy.Rate(1/self.sleep_rate) #in Hz
         self.base_reward = []
+        self.prev_stimulus = 0
 
     @property
     def action_space(self):
@@ -104,7 +107,12 @@ class Environment(object):
 
     def get_reward(self, action):
         stimulus = sum([math.pow(self.base_reward[i] - self.pos[i],2)for i in range(len(self.pos))])
-        reward = -1 * stimulus * 100
+#        stimulus = sum([math.fabs(self.base_reward[i] - self.pos[i]) for i in range(len(self.pos))])
+#        reward = - (stimulus - self.prev_stimulus) * 100
+#        self.prev_stimulus = stimulus
+#        print(str(stimulus)+" "+str(self.prev_stimulus))
+        reward = -stimulus*100
+        self.reward_pub.publish(reward)
         return reward
 
     def reset(self, cont=False):
