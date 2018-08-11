@@ -5,7 +5,7 @@
 #last modified: 2018.06.28
 #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv#
 import numpy as np
-import time
+import time, math
 import json
 import matplotlib
 import matplotlib.pyplot as plt
@@ -17,15 +17,16 @@ from keras.optimizers import Adam
 import keras.backend as K
 import tensorflow as tf
 import ConfigParser
+import copy
 
-#import rospy
-from sim_environment import Environment
+import rospy
+from real_environment import Environment
 #from sensor_msgs.msg import Joy
 
 class Agent(object):
     def __init__(self,env):
         config = ConfigParser.RawConfigParser()
-        config.read('parameters.cfg')
+        config.read('real_parameters.cfg')
         self.env = env
         sess = tf.Session()
         K.set_session(sess)
@@ -62,24 +63,32 @@ class Agent(object):
         max_r = -10000
         self.actor.update_target_network()
         self.critic.update_target_network()
+        raw_input('ready')
+        self.env.base_reward = copy.deepcopy(self.env.pos)
         for episode in range(self.nepisodes):
             s = self.env.reset()
             #s = np.reshape(s,[1,self.nstates])
-            s_t = np.hstack((s[0], s[1]))
+            s_t = np.hstack((s[0], s[1], s[2], s[3], s[4], s[5]))
             treward = []
+            step = 0
             while True:
                 loss = 0.0
-                #a = self.actor.model.predict(s)
-                #a = self.actor.model.predict(s) + self.noise()
-                a = self.actor.model.predict(s_t.reshape(1, s_t.shape[0])) + self.noise()
-                a[0][0] = max(env.action_space.low[0], min(env.action_space.high[0], a[0][0]))
-                a[0][1] = max(env.action_space.low[1], min(env.action_space.high[1], a[0][1]))
+                step += 1
+                if np.random.rand() < 0.0:
+                    a = [[self.env.action_space.sample()]]
+                    print 'RANDOM: '+str(a)
+                else:
+                    a = self.actor.model.predict(s_t.reshape(1, s_t.shape[0])) + self.noise()
+                    print 'ACTUAL: ' + str(a)
+                a[0][0] = max(self.env.action_space.low(), min(self.env.action_space.high(), a[0][0]))
+                if math.fabs(a[0][0]) < 0.03 : a[0][0] = 0
 
-                s2, r, done = self.env.step(a[0])
-                #s2 = np.reshape(s2, [1,self.nstates])
-                s2_t = np.hstack((s2[0], s2[1]))
+                s2, r, done, lost = self.env.step(a[0][0])
+                s2_t = np.hstack((s2[0], s2[1], s2[2], s2[3], s2[4], s2[5]))
 
-                #self.memory.append((s,a[0],r,s2[0],done))
+                if r < -2:
+                    r = -100
+
                 self.memory.append((s,a[0],r, s2_t,done))
 
                 if len(self.memory) >= self.batch_size:
@@ -111,16 +120,17 @@ class Agent(object):
                 s = s2
                 treward.append(r)
 
+                print 'episode: ' + str(episode) + ' step: ' + str(step) + ' reward: ' + str(r) + ' action: ' + str(a) + ' ' + str(s) 
 
                 if done:
                     treward = sum(treward)/len(treward)
                     
                     #save checkpoint
-                    if treward >= max_r:
-                        max_r = treward
-                        self.actor.model.save_weights('episode'+str(episode)+'.hdf5', overwrite=True)
+                    #if treward >= max_r:
+                    #    max_r = treward
+                    #    self.actor.model.save_weights('episode'+str(episode)+'.hdf5', overwrite=True)
 
-                    print 'episode: ' + str(episode+1) + ' reward: ' + str(treward) + ' loss: ' + str(round(loss,4))
+                    #print 'episode: ' + str(episode+1) + ' reward: ' + str(treward)
                     break
             
             self.reward_list.append(treward)
@@ -178,10 +188,10 @@ class Agent(object):
     def save_model(self):
         actor_model = self.actor.model.to_json()
         critic_model = self.critic.model.to_json()
-        with open('initial_actor', 'w') as json_file:
+        with open('actor_model.json', 'w') as json_file:
             json_file.write(actor_model)
-        with open('initial_critic', 'w') as json_file:
-            json_file.write(critic_model)
+        #with open('initial_critic', 'w') as json_file:
+        #    json_file.write(critic_model)
 
 class Ornstein_Uhlenbeck(object):
     def __init__(self, mu, sigma=0.3, theta=0.15, dt=1e-2, x0=None):
@@ -226,10 +236,9 @@ class ActorNetwork(object):
     def create_network(self, num_state, num_action):
         #action_input = Input(shape=(1,)+num_state)
         state_input = Input(shape=[num_state])
-        x = Dense(400, activation='relu')(state_input)
-        x = Dense(400, activation='relu')(x)
-        x = Dense(400, activation='relu')(x)
-        x = Dense(num_action, activation='tanh')(x)
+        x = Dense(50, activation='relu')(state_input)
+        x = Dense(10, activation='relu')(x)
+        x = Dense(num_action, activation='linear')(x)
         model = Model(inputs=state_input, outputs=x)
         model_json = model.to_json()
         with open('actor_model.json','w') as json_file:
@@ -265,9 +274,9 @@ class CriticNetwork(object):
         action_input = Input(shape=[num_action])
         state_input = Input(shape=[num_state])
         x = concatenate([state_input, action_input])
-        x = Dense(400, activation='relu')(x)
-        x = Dense(300, activation='relu')(x)
-        x = Dense(300, activation='relu')(x)
+        x = Dense(10, activation='relu')(x)
+        x = Dense(10, activation='relu')(x)
+        x = Dense(10, activation='relu')(x)
         x = Dense(1, activation='linear')(x)
         model = Model(inputs=[state_input, action_input], outputs=x)
         model_json = model.to_json()
@@ -277,8 +286,8 @@ class CriticNetwork(object):
         return model, action_input, state_input
 
 if __name__ == '__main__':
-    #rospy.init_node('ddpg_learning', disable_signals=True)
-    #rospy.loginfo('START ONLINE TRAINING DDPG')
+    rospy.init_node('ddpg_learning', disable_signals=True)
+    rospy.loginfo('START ONLINE TRAINING DDPG')
     env = Environment()
     agent = Agent(env)
     start_time = time.time()
@@ -295,15 +304,14 @@ if __name__ == '__main__':
 
     try:
         agent.train()
-       # rospy.loginfo('COMPLETE TRAINING')
+        rospy.loginfo('COMPLETE TRAINING')
         env.reset()
-       # ros.spin()
     except (KeyboardInterrupt, SystemExit):
         pass
     finally:
         agent.record()
         m,s = divmod(time.time()-start_time,60)
         h,m = divmod(m,60)
-        #rospy.loginfo('time took %d:%02d:%02d' %(h,m,s))
+        rospy.loginfo('time took %d:%02d:%02d' %(h,m,s))
         print 'time took %d:%02d:%02d' %(h,m,s)
-        #rospy.loginfo('exit time')
+        rospy.loginfo('exit time')

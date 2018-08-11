@@ -51,7 +51,7 @@ class Environment(object):
 
         #self.f = open('data.csv', 'w')
         self.initial_flag  = True
-        self.sleep_rate = 1 #in seconds
+        self.sleep_rate = 0.1 #in seconds
         self.rate = rospy.Rate(1/self.sleep_rate) #in Hz
         self.base_reward = []
 
@@ -76,49 +76,16 @@ class Environment(object):
         #self.state = self.pos_error + self.vel_error + self.prev_action
         self.state = self.pos_error + self.vel_error
         #self.state = self.pos_error
-    
-    def __move(self, action):
-        vel = Twist()
-        if action == Environment.STOP:
-            vel.linear.x = 0
-            vel.angular.z = 0
-        elif action == Environment.REVERSE:
-            vel.linear.x = -0.2
-            vel.angular.z = 0
-        elif action == Environment.FORWARD:
-            vel.linear.x = 0.2
-            vel.angular.z = 0
-        elif action == Environment.TURN_LEFT:
-            vel.linear.x = 0
-            vel.angular.z = 0.4
-        elif action == Environment.TURN_RIGHT:
-            vel.linear.x = 0
-            vel.angular.z = -0.4            
-        elif action == Environment.LEFT_FORWARD:
-            vel.linear.x = 0.2
-            vel.angular.z = 0.4            
-        elif action == Environment.RIGHT_FORWARD:
-            vel.linear.x = 0.2
-            vel.angular.z = -0.4            
-        elif action == Environment.LEFT_REVERSE:
-            vel.linear.x = -0.2
-            vel.angular.z = 0.4            
-        elif action == Environment.RIGHT_REVERSE:
-            vel.linear.x = -0.2
-            vel.angular.z = -0.4            
-        vel.linear.y = 0
-        vel.linear.z = 0
-        vel.angular.x = 0
-        vel.angular.y = 0
-        self.pub.publish(vel)
 
     def __vel_move(self, action):
-        translate, rotate = action
+        #translate, rotate = action
         vel = Twist()
-        vel.linear.x = translate
+        #vel.linear.x = translate
+        vel.linear.x = action
         vel.linear.y = 0
         vel.linear.z = 0
-        vel.angular.z = rotate
+        #vel.angular.z = rotate
+        vel.angular.z = 0
         vel.angular.x = 0
         vel.angular.y = 0
         self.pub.publish(vel)
@@ -136,23 +103,11 @@ class Environment(object):
         self.f.write(str(action)+'\n')
 
     def get_reward(self, action):
-        #reward = 0
-        #if self.contact == Environment.NONE and action == Environment.STOP:
-        #   reward = 100
-        #elif self.contact == Environment.PUSH and action == Environment.REVERSE:
-        #    reward = 100
-        #elif self.contact == Environment.PULL and action == Environment.FORWARD:
-        #    reward = 100
-        #elif self.contact == Environment.LEFT and action == Environment.TURN_LEFT:
-        #    reward = 100
-        #elif self.contact == Environment.RIGHT and action == Environment.TURN_RIGHT:
-        #    reward = 100
         stimulus = sum([math.pow(self.base_reward[i] - self.pos[i],2)for i in range(len(self.pos))])
         reward = -1 * stimulus * 100
         return reward
 
     def reset(self, cont=False):
-        self.contact = random.choice([Environment.NONE, Environment.PUSH, Environment.PULL])
         self.initial_step_time = time.time()
         if not cont:
             self.step_time = 0
@@ -169,7 +124,8 @@ class Environment(object):
         lost = False
        
         self.step_time += 1
-        self.__move(action)
+        self.__vel_move(action)
+        
 
         self.prev_action.pop()
         self.prev_action.insert(0,action)
@@ -194,37 +150,26 @@ class Environment(object):
             pass
 
         def get_size(self):
-            #return 5*2
             return 3*2
-            #return 3
-            #return 3*2+4
 
     class ActionSpace(object):
         def __init__(self):
-            self.action_list = [
-                                Environment.FORWARD,
-                                Environment.STOP,
-                                Environment.REVERSE,
-                                #Environment.TURN_LEFT,
-                                #Environment.TURN_RIGHT,
-                                #Environment.LEFT_FORWARD,
-                                #Environment.RIGHT_FORWARD,
-                                #Environment.LEFT_REVERSE,
-                                #Environment.RIGHT_REVERSE
-                                ]
-        
+            pass
+
         def sample(self):
-            return random.choice(self.action_list)
+            return round(random.uniform(-0.2,0.2),2)
     
         def get_size(self):
-            return len(self.action_list)
+            return 1
             #return 2
 
         def low(self):
-            return [-0.4,-0.2]
+            #return [-0.2,-0.2]
+            return -0.2
         
         def high(self):
-            return [0.4,0.2]
+            #return [0.2,0.2]
+            return 0.2
 
 if __name__ == '__main__':
     try:
