@@ -71,7 +71,7 @@ class reinforcement_learning:
         #model = AA3CFF(n_action) #for image
         model = A3CFFGaussian(n_state, action_space)
         #opt = chainer.optimizers.Adam(alpha=2.5e-4, eps=1e-5)
-        opt = chainer.optimizers.Adam(alpha=0.01, eps=0.01)
+        opt = chainer.optimizers.Adam(alpha=0.01, eps=0.1)
         opt.setup(model)
         self.n_action = n_action
         phi = lambda x: np.array(x, dtype=np.float32)
@@ -97,7 +97,7 @@ class Agent(object):
     def __init__(self,env):
         pygame.init()
 
-        self.nepisodes = 15
+        self.nepisodes = 30
 
         self.env = env
         self.nstates = env.observation_space.get_size()
@@ -143,21 +143,20 @@ class Agent(object):
             assert False, 'failed to get joint state'
         self.wait_keyboard_input()
         pygame.mixer.music.load('censor-beep-01.mp3')
-        epsilon = 0.2
+        epsilon = 0.0
         for episode in range(self.nepisodes):
             if self.episode and self.episode > episode:
                 continue
-            s = self.env.reset()
-            s = np.reshape(s,[1,self.nstates]) 
             treward = []
             loss = 0
             step = 0
             pygame.mixer.music.load('censor-beep-01.mp3')
 #            self.wait_keyboard_input()
+            self.env.reset()
             while not rospy.is_shutdown():
                 if self.env.state:
                     self.state = self.env.state
-                    self.state[3] = self.state[4] = self.state[5] = 0
+                    #self.state[3] = self.state[4] = self.state[5] = 0
                     if epsilon > np.random.rand():
                         a = self.env.action_space.sample()
                         name = 'RANDOM ' + str(a) + ' '
@@ -166,15 +165,11 @@ class Agent(object):
                         print(a)
                         a = np.clip(a,self.env.action_space.low(), self.env.action_space.high())
                         name = str(a)
-
                     if math.fabs(a) < 0.03: a = 0
 
                     s2, self.reward, done, check = self.env.step(a)
-                    if self.reward < -1:
-                        self.reward = -100
-#                        pygame.mixer.music.play(0)
-#                    else:
-#                        self.reward = 0
+
+                    self.reward = -100 if self.reward < -0.1 else self.reward
 
                     if check:
                         pygame.mixer.music.load('censor-beep-10.mp3')
@@ -198,7 +193,7 @@ class Agent(object):
         while not rospy.is_shutdown():
             if self.env.state:
                 self.state = self.env.state
-                self.state[3] = self.state[4] = self.state[5] = 0
+                #self.state[3] = self.state[4] = self.state[5] = 0
                 a = self.act(self.state)
                 a = np.clip(a,self.env.action_space.low(), self.env.action_space.high())
                 s2, self.reward, done, check = self.env.step(a)
