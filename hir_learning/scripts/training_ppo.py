@@ -11,7 +11,9 @@ import chainer
 import chainer.functions as F
 import chainerrl.links as L
 import chainerrl.policies as P
+import chainerrl.v_function as V
 from chainerrl.agents import a3c, PPO
+
 
 import numpy as np
 import os
@@ -25,6 +27,17 @@ from real_environment import Environment
 from sensor_msgs.msg import Joy
 import pygame
 
+class A3CFF(chainer.ChainList, a3c.A3CModel):
+    def __init__(self, n_actions):
+        self.head = L.NIPSDQNHead()
+        self.pi = P.FCSoftmaxPolicy(self.head.n_output_channels, n_actions)
+        self.v = V.FCVFunction(self.head.n_output_channels)
+        super().__init__(self.head, self.pi, self.v)
+
+    def pi_and_v(self, state):
+        out = self.head(state)
+        return self.pi(out), self.v(out)
+
 class A3CFFSoftmax(chainer.ChainList, a3c.A3CModel):
     def __init__(self, nstates, nactions, hidden_sizes=(100,100)):
         self.pi = P.SoftmaxPolicy(model=L.MLP(nstates, nactions, hidden_sizes))
@@ -35,7 +48,7 @@ class A3CFFSoftmax(chainer.ChainList, a3c.A3CModel):
         return self.pi(state), self.v(state)
 
 class A3CFFGaussian(chainer.Chain, a3c.A3CModel):
-    def __init__(self, n_observations, action_space, n_layers=2, n_nodes=64, bound_mean=True, normalize_obs=False):
+    def __init__(self, n_observations, action_space, n_layers=2, n_nodes=50, bound_mean=True, normalize_obs=True):
         assert bound_mean in [False, True]
         assert normalize_obs in [False, True]
         super(A3CFFGaussian, self).__init__()
@@ -55,14 +68,16 @@ class A3CFFGaussian(chainer.Chain, a3c.A3CModel):
 
 class reinforcement_learning:
     def __init__(self, n_state=6, n_action=3, action_space=None):
-        model = A3CFFSoftmax(n_state, n_action)
-        #model = A3CFFGaussian(n_state, action_space)
+        #model = AA3CFF(n_action) #for image
+        model = A3CFFGaussian(n_state, action_space)
+        #opt = chainer.optimizers.Adam(alpha=2.5e-4, eps=1e-5)
         opt = chainer.optimizers.Adam(alpha=0.01, eps=0.01)
         opt.setup(model)
         self.n_action = n_action
         phi = lambda x: np.array(x, dtype=np.float32)
 
-        self.agent = PPO(model, opt, phi=phi, update_interval=1, minibatch_size=64, epochs=10, clip_eps_vf=None, entropy_coef=0.0, standardize_advantages=True)
+        #self.agent = PPO(model, opt, phi=phi, update_interval=50, minibatch_size=16, epochs=2, clips_eps=0.1, clip_eps_vf=None, standardize_advantages=True)
+        self.agent = PPO(model, opt, phi=phi, update_interval=50, minibatch_size=16, epochs=2, clip_eps_vf=None, entropy_coef=0.0, standardize_advantages=True)
 
     def act_and_trains(self, obs, reward):
         self.action = self.agent.act_and_train(obs, reward)
@@ -122,13 +137,13 @@ class Agent(object):
     def train(self):
         try:
             while not self.env.state:
-                print "PASS\r\n"
+                print("PASS\r\n")
                 pass
         except KeyboardInterrupt:
             assert False, 'failed to get joint state'
         self.wait_keyboard_input()
         pygame.mixer.music.load('censor-beep-01.mp3')
-        epsilon = 0.5
+        epsilon = 0.2
         for episode in range(self.nepisodes):
             if self.episode and self.episode > episode:
                 continue
@@ -148,13 +163,13 @@ class Agent(object):
                         name = 'RANDOM ' + str(a) + ' '
                     else:
                         a = self.act_and_trains(self.state, self.reward)
-                        a = max(self.env.action_space.low(), min(self.env.action_space.high(), a))
+                        print(a)
+                        a = np.clip(a,self.env.action_space.low(), self.env.action_space.high())
                         name = str(a)
 
                     if math.fabs(a) < 0.03: a = 0
 
                     s2, self.reward, done, check = self.env.step(a)
-                    print self.reward
                     if self.reward < -1:
                         self.reward = -100
 #                        pygame.mixer.music.play(0)
@@ -167,7 +182,7 @@ class Agent(object):
                         raw_input('press enter if connection is restored')
                         s = self.env.reset()
 
-                    print 'epsode: ' + str(episode) + ' step: ' + str(step) + ' reward: ' + str(self.reward) + ' action: ' + name + " " + str(self.state)
+                    print('epsode: ' + str(episode) + ' step: ' + str(step) + ' reward: ' + str(self.reward) + ' action: ' + name + " " + str(self.state))
                     self.collect_state(episode,step, self.reward, name, self.state)
                     step += 1
                 else:
@@ -185,8 +200,9 @@ class Agent(object):
                 self.state = self.env.state
                 self.state[3] = self.state[4] = self.state[5] = 0
                 a = self.act(self.state)
-                s2, self.reward, done, check = self.env.step(a, joy=self.joy[0])
-                print 'act ' + str(a) + ' ' + str(self.state)
+                a = np.clip(a,self.env.action_space.low(), self.env.action_space.high())
+                s2, self.reward, done, check = self.env.step(a)
+                print('act ' + str(a) + ' ' + str(self.state))
 
     def collect_state(self,episode, step, reward, action,state):
         file2 = open('training2.csv', 'a')
