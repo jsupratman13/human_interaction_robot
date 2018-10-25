@@ -51,14 +51,14 @@ class reinforcement_learning:
         self.gamma = 0.65
         self.n_action = n_action
         self.explorer = chainerrl.explorers.ConstantEpsilonGreedy(
-            epsilon=0.3, random_action_func=self.action_space_sample)
+            epsilon=0.0, random_action_func=self.action_space_sample)
         self.replay_buffer = chainerrl.replay_buffer.ReplayBuffer(capacity=10 ** 4)
 #        self.phi = lambda x: x.astype(np.float32, copy=False)
 #        self.phi = 0
         self.agent = chainerrl.agents.DoubleDQN(
             self.q_func, self.optimizer, self.replay_buffer, self.gamma, self.explorer,
-            minibatch_size=10, replay_start_size=50, update_interval=1,
-            target_update_interval=50)
+            minibatch_size=4, replay_start_size=10, update_interval=1,
+            target_update_interval=10)
         home = expanduser("~")
         if os.path.isdir(home + '/agent'):
             self.agent.load('agent')
@@ -66,6 +66,8 @@ class reinforcement_learning:
 
     def act_and_trains(self, obs, reward):
         self.action = self.agent.act_and_train(obs, reward)
+        if (10 * np.random.rand()) < (- reward):
+            self.action = self.action_space_sample()
         return self.action
 
     def stop_episode_and_train(self, obs, reward, done):
@@ -80,7 +82,7 @@ class reinforcement_learning:
         print("agent SAVED!!")
 
     def action_space_sample(self):
-        return np.random.randint(1,self.n_action)
+        return np.random.randint(0,self.n_action)
 
 class Agent(object):
     def __init__(self,env):
