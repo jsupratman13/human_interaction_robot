@@ -156,17 +156,22 @@ class Environment(object):
 #        self.prev_stimulus = stimulus
 #        print(str(stimulus)+" "+str(self.prev_stimulus))
         stimulus = 0
+        nlimit = 0
         for pos, vel in zip(self.pos_error, self.vel_error):
+#            print(pos)
             sign = 0
-            stim = 0
             if pos > 0.02:
                 sign = 1
-                stim = (  pos - 0.02) ** 3
             if pos < -0.02:
                 sign = -1
-                stim = (- pos - 0.02) ** 3
-            stimulus += sign * vel + stim * 5
+            if pos > 0.4 or pos < -0.36:
+                nlimit = -5
+                print("limit!")
+            stimulus += sign * vel
         reward = -stimulus * 40
+        reward += nlimit
+        if vel == 0:
+            reward += 1;
         self.reward_pub.publish(reward)
         return reward
 
