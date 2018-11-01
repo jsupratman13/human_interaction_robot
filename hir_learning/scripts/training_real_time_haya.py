@@ -48,7 +48,7 @@ class reinforcement_learning:
             print("No GPU")
         self.optimizer = chainer.optimizers.Adam(eps=0.01)
         self.optimizer.setup(self.q_func)
-        self.gamma = 0.0
+        self.gamma = 0.65
         self.n_action = n_action
         self.n_learning = 200
         self.explorer = chainerrl.explorers.LinearDecayEpsilonGreedy(

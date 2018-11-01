@@ -53,7 +53,7 @@ class Environment(object):
 
         #self.f = open('data.csv', 'w')
         self.initial_flag  = True
-        self.sleep_rate = 0.6 #in seconds
+        self.sleep_rate = 0.2 #in seconds
         self.rate = rospy.Rate(1/self.sleep_rate) #in Hz
         self.base_reward = []
         self.prev_stimulus = 0
@@ -156,7 +156,7 @@ class Environment(object):
 #        self.prev_stimulus = stimulus
 #        print(str(stimulus)+" "+str(self.prev_stimulus))
         stimulus = 0
-        nlimit = 0
+        nlimit = 1
         for pos, vel in zip(self.pos_error, self.vel_error):
 #            print(pos)
             sign = 0
@@ -169,9 +169,10 @@ class Environment(object):
                 print("limit!")
             stimulus += sign * vel
         reward = -stimulus * 40
-        reward += nlimit
-        if vel == 0:
-            reward += 1;
+#        reward += nlimit
+        reward = nlimit
+#        if vel == 0:
+#            reward += 1;
         self.reward_pub.publish(reward)
         return reward
 
