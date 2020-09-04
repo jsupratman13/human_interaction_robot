@@ -50,19 +50,19 @@ class reinforcement_learning:
         self.optimizer.setup(self.q_func)
         self.gamma = 0.65
         self.n_action = n_action
-        self.explorer = chainerrl.explorers.ConstantEpsilonGreedy(
-            epsilon=0.3, random_action_func=self.action_space_sample)
+        self.n_learning = 200
+        self.explorer = chainerrl.explorers.LinearDecayEpsilonGreedy(
+			start_epsilon=1.0, end_epsilon=1.0, decay_steps=self.n_learning, random_action_func=self.action_space_sample)
         self.replay_buffer = chainerrl.replay_buffer.ReplayBuffer(capacity=10 ** 4)
-#        self.phi = lambda x: x.astype(np.float32, copy=False)
-#        self.phi = 0
         self.agent = chainerrl.agents.DoubleDQN(
             self.q_func, self.optimizer, self.replay_buffer, self.gamma, self.explorer,
-            minibatch_size=10, replay_start_size=50, update_interval=1,
-            target_update_interval=50)
+            minibatch_size=4, replay_start_size=10, update_interval=1,
+            target_update_interval=10)
         home = expanduser("~")
         if os.path.isdir(home + '/agent'):
             self.agent.load('agent')
             print('agent LOADED!!')
+        self.random_number = 0
 
     def act_and_trains(self, obs, reward):
         self.action = self.agent.act_and_train(obs, reward)
@@ -80,7 +80,12 @@ class reinforcement_learning:
         print("agent SAVED!!")
 
     def action_space_sample(self):
-        return np.random.randint(1,self.n_action)
+#        return np.random.randint(1,self.n_action)
+        self.random_number += 1
+        return int((self.random_number % 16) / 8) + 1
+
+    def number_learning(self):
+        return self.n_learning
 
 class Agent(object):
     def __init__(self,env):
@@ -89,7 +94,7 @@ class Agent(object):
         rospy.Subscriber('/joy',Joy,self.get_joy)
         self.joy = [Environment.NONE, 0]
         self.rl = reinforcement_learning()
-        self.nepisodes = 15
+        self.nepisodes = self.rl.number_learning() / 50
 
         self.env = env
         self.nstates = env.observation_space.get_size()
@@ -195,11 +200,6 @@ class Agent(object):
                     a, name = self.act_and_trains(self.state, self.reward)
                     s2, self.reward, done, check = self.env.step(a, joy=self.joy[0])
                     print self.reward
-#                    if self.reward < -0.1:
-#                        self.reward = -100
-#                        pygame.mixer.music.play(0)
-#                    else:
-#                        self.reward = 0
 
                     if check:
                         pygame.mixer.music.load('censor-beep-10.mp3')
